@@ -1,7 +1,10 @@
 // Core exports
 export { FlagStore } from './flag-store';
 export { OfrepHandler, createOfrepHandler } from './ofrep-handler';
-export { WorkersStorage, WorkersFeatureFlag } from './workers-storage';
+
+// Re-export from flagd-core for advanced usage
+export { FlagdCore, FeatureFlag, MemoryStorage } from '@openfeature/flagd-core';
+export type { Storage, FlagdCoreOptions } from '@openfeature/flagd-core';
 
 // Type exports
 export type {
@@ -9,10 +12,6 @@ export type {
   TypedResolutionResult,
   EvaluationDetails,
 } from './flag-store';
-
-export type {
-  Flag,
-} from './workers-storage';
 
 export type {
   OfrepContext,

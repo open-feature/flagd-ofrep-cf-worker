@@ -52,12 +52,16 @@ Cloudflare Workers run in V8 isolates with strict security restrictions that blo
 
 ### The Solution
 
-This repository includes a **fork of `@openfeature/flagd-core`** with an optional `workers` compatibility mode that:
+This repository includes a **fork of `@openfeature/flagd-core`** (as a git submodule) with an optional `workers` compatibility mode that:
 
 1. **Pre-compiled ajv validators**: Generated at build time using `ajv-standalone`, avoiding runtime code generation
 2. **Interpreter mode for JSONLogic**: Uses `.run()` instead of `.build()`, which interprets rules without code generation
 
-#### Usage
+The `@openfeature/flagd-ofrep-cf-worker` package uses this fork directly, automatically enabling Workers mode.
+
+#### Direct Usage
+
+If using `FlagdCore` directly:
 
 ```typescript
 import { FlagdCore } from '@openfeature/flagd-core';
@@ -108,6 +112,10 @@ npm run build:validators
 flagd-ofrep-cf-worker/
 ├── packages/
 │   └── js-ofrep-worker/       # Reusable JS package (@openfeature/flagd-ofrep-cf-worker)
+│       └── src/
+│           ├── flag-store.ts  # FlagStore wrapper around FlagdCore
+│           ├── ofrep-handler.ts # OFREP HTTP handler
+│           └── stash/         # Archived standalone implementation (for reference)
 ├── examples/
 │   ├── js-worker/             # Runnable JS Cloudflare Worker example
 │   └── rust-worker/           # Runnable Rust Cloudflare Worker example (planned)
@@ -117,6 +125,8 @@ flagd-ofrep-cf-worker/
 │   └── test-flags.json        # Shared test flag definitions
 └── .plans/                    # Planning documents
 ```
+
+> **Note:** The `src/stash/` folder contains an earlier standalone implementation that doesn't depend on flagd-core. It's kept for reference but is not used.
 
 ## Quick Start
 

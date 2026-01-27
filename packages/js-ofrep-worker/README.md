@@ -4,7 +4,7 @@ flagd OFREP handler for Cloudflare Workers - in-process flag evaluation compatib
 
 ## Overview
 
-This package provides a ready-to-use OFREP (OpenFeature Remote Evaluation Protocol) handler for Cloudflare Workers. It performs flag evaluations entirely within the worker using a Workers-compatible implementation of the flagd evaluation logic.
+This package provides a ready-to-use OFREP (OpenFeature Remote Evaluation Protocol) handler for Cloudflare Workers. It uses a [forked version of `@openfeature/flagd-core`](https://github.com/DevCycleHQ-Sandbox/js-sdk-contrib/tree/feat/workers-compatibility) with Workers compatibility mode, performing flag evaluations entirely within the worker.
 
 **Key Features:**
 - Full OFREP API compliance
@@ -153,6 +153,15 @@ Bulk evaluate all flags.
   ]
 }
 ```
+
+## How It Works
+
+This package wraps `@openfeature/flagd-core` with Workers compatibility mode enabled (`{ workers: true }`). This mode:
+
+1. **Uses pre-compiled JSON Schema validators** instead of runtime `ajv.compile()`, avoiding `new Function()`
+2. **Uses JSONLogic interpreter mode** (`.run()`) instead of compilation (`.build()`), avoiding `new Function()`
+
+This makes the package fully compatible with Cloudflare Workers' V8 isolate security restrictions.
 
 ## Flag Configuration
 

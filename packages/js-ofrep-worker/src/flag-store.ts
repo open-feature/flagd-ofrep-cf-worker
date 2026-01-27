@@ -1,6 +1,6 @@
 import type { EvaluationContext, JsonValue, FlagMetadata } from '@openfeature/core';
 import { StandardResolutionReasons, ErrorCode } from '@openfeature/core';
-import { WorkersStorage } from './workers-storage';
+import { FlagdCore } from '@openfeature/flagd-core';
 
 /**
  * Result of a flag resolution with all relevant metadata
@@ -42,16 +42,17 @@ export interface EvaluationDetails {
 /**
  * Flag store providing flag evaluation for Cloudflare Workers.
  * 
- * Uses a Workers-compatible implementation that bypasses ajv schema 
- * validation (which uses dynamic code generation not allowed in 
- * Cloudflare Workers).
+ * Uses the forked @openfeature/flagd-core with Workers compatibility mode,
+ * which uses interpreter-based JSONLogic evaluation instead of compilation
+ * to avoid the `new Function()` restriction in Cloudflare Workers.
  */
 export class FlagStore {
-  private readonly storage: WorkersStorage;
+  private readonly core: FlagdCore;
   private flagSetMetadata: FlagMetadata = {};
 
   constructor(flags: string | object) {
-    this.storage = new WorkersStorage();
+    // Initialize FlagdCore with workers: true for interpreter mode
+    this.core = new FlagdCore(undefined, undefined, { workers: true });
     this.setFlags(flags);
   }
 
@@ -60,8 +61,8 @@ export class FlagStore {
    */
   setFlags(flags: string | object): void {
     const flagConfig = typeof flags === 'string' ? flags : JSON.stringify(flags);
-    this.storage.setConfigurations(flagConfig);
-    this.flagSetMetadata = this.storage.getFlagSetMetadata();
+    this.core.setConfigurations(flagConfig);
+    this.flagSetMetadata = this.core.getFlagSetMetadata();
   }
 
   /**
@@ -75,79 +76,14 @@ export class FlagStore {
    * Check if a flag exists
    */
   hasFlag(flagKey: string): boolean {
-    return this.storage.getFlag(flagKey) !== undefined;
+    return this.core.getFlag(flagKey) !== undefined;
   }
 
   /**
    * Get all flag keys
    */
   getFlagKeys(): string[] {
-    return Array.from(this.storage.getFlags().keys());
-  }
-
-  /**
-   * Resolve a flag and validate the type
-   */
-  private resolveWithTypeCheck<T extends JsonValue>(
-    flagKey: string,
-    defaultValue: T,
-    context: EvaluationContext,
-    expectedType: string,
-  ): TypedResolutionResult<T> {
-    const flag = this.storage.getFlag(flagKey);
-
-    if (!flag) {
-      return {
-        value: defaultValue,
-        reason: StandardResolutionReasons.ERROR,
-        errorCode: ErrorCode.FLAG_NOT_FOUND,
-        errorMessage: `flag '${flagKey}' not found`,
-        flagMetadata: this.flagSetMetadata,
-      };
-    }
-
-    if (flag.state === 'DISABLED') {
-      return {
-        value: defaultValue,
-        reason: StandardResolutionReasons.ERROR,
-        errorCode: ErrorCode.FLAG_NOT_FOUND,
-        errorMessage: `flag '${flagKey}' is disabled`,
-        flagMetadata: flag.metadata,
-      };
-    }
-
-    const result = flag.evaluate(context);
-
-    // Handle errors
-    if (result.value === undefined || result.errorCode) {
-      return {
-        value: defaultValue,
-        variant: result.variant,
-        reason: result.reason,
-        errorCode: result.errorCode,
-        errorMessage: result.errorMessage,
-        flagMetadata: result.flagMetadata,
-      };
-    }
-
-    // Type check
-    const actualType = typeof result.value;
-    if (actualType !== expectedType && expectedType !== 'object') {
-      return {
-        value: defaultValue,
-        reason: StandardResolutionReasons.ERROR,
-        errorCode: ErrorCode.TYPE_MISMATCH,
-        errorMessage: `Evaluated type of flag ${flagKey} does not match. Expected ${expectedType}, got ${actualType}`,
-        flagMetadata: flag.metadata,
-      };
-    }
-
-    return {
-      value: result.value as T,
-      variant: result.variant,
-      reason: result.reason,
-      flagMetadata: result.flagMetadata,
-    };
+    return Array.from(this.core.getFlags().keys());
   }
 
   /**
@@ -157,8 +93,16 @@ export class FlagStore {
     flagKey: string,
     defaultValue: boolean,
     context: EvaluationContext = {},
-  ) {
-    return this.resolveWithTypeCheck(flagKey, defaultValue, context, 'boolean');
+  ): TypedResolutionResult<boolean> {
+    const result = this.core.resolveBooleanEvaluation(flagKey, defaultValue, context);
+    return {
+      value: result.value,
+      variant: result.variant,
+      reason: result.reason,
+      errorCode: result.errorCode,
+      errorMessage: result.errorMessage,
+      flagMetadata: result.flagMetadata,
+    };
   }
 
   /**
@@ -168,8 +112,16 @@ export class FlagStore {
     flagKey: string,
     defaultValue: string,
     context: EvaluationContext = {},
-  ) {
-    return this.resolveWithTypeCheck(flagKey, defaultValue, context, 'string');
+  ): TypedResolutionResult<string> {
+    const result = this.core.resolveStringEvaluation(flagKey, defaultValue, context);
+    return {
+      value: result.value,
+      variant: result.variant,
+      reason: result.reason,
+      errorCode: result.errorCode,
+      errorMessage: result.errorMessage,
+      flagMetadata: result.flagMetadata,
+    };
   }
 
   /**
@@ -179,8 +131,16 @@ export class FlagStore {
     flagKey: string,
     defaultValue: number,
     context: EvaluationContext = {},
-  ) {
-    return this.resolveWithTypeCheck(flagKey, defaultValue, context, 'number');
+  ): TypedResolutionResult<number> {
+    const result = this.core.resolveNumberEvaluation(flagKey, defaultValue, context);
+    return {
+      value: result.value,
+      variant: result.variant,
+      reason: result.reason,
+      errorCode: result.errorCode,
+      errorMessage: result.errorMessage,
+      flagMetadata: result.flagMetadata,
+    };
   }
 
   /**
@@ -190,8 +150,16 @@ export class FlagStore {
     flagKey: string,
     defaultValue: T,
     context: EvaluationContext = {},
-  ) {
-    return this.resolveWithTypeCheck(flagKey, defaultValue, context, 'object');
+  ): TypedResolutionResult<T> {
+    const result = this.core.resolveObjectEvaluation(flagKey, defaultValue, context);
+    return {
+      value: result.value as T,
+      variant: result.variant,
+      reason: result.reason,
+      errorCode: result.errorCode,
+      errorMessage: result.errorMessage,
+      flagMetadata: result.flagMetadata,
+    };
   }
 
   /**
@@ -201,7 +169,7 @@ export class FlagStore {
     flagKey: string,
     context: EvaluationContext = {},
   ): FlagResolutionResult {
-    const flag = this.storage.getFlag(flagKey);
+    const flag = this.core.getFlag(flagKey);
     
     if (!flag) {
       return {
@@ -239,30 +207,15 @@ export class FlagStore {
    * Resolve all enabled flags
    */
   resolveAll(context: EvaluationContext = {}): EvaluationDetails[] {
-    const results: EvaluationDetails[] = [];
-
-    for (const [key, flag] of this.storage.getFlags()) {
-      if (flag.state === 'DISABLED') {
-        continue;
-      }
-
-      try {
-        const result = flag.evaluate(context);
-        
-        if (result.value !== undefined && !result.errorCode) {
-          results.push({
-            flagKey: key,
-            value: result.value,
-            variant: result.variant,
-            reason: result.reason,
-            flagMetadata: result.flagMetadata,
-          });
-        }
-      } catch {
-        // Skip flags that error during evaluation
-      }
-    }
-
-    return results;
+    const results = this.core.resolveAll(context);
+    return results.map((result) => ({
+      flagKey: result.flagKey,
+      value: result.value,
+      variant: result.variant,
+      reason: result.reason,
+      errorCode: result.errorCode,
+      errorMessage: result.errorMessage,
+      flagMetadata: result.flagMetadata,
+    }));
   }
 }

@@ -14,7 +14,8 @@
   },
   "workspaces": [
     "packages/*",
-    "examples/*"
+    "examples/*",
+    "contrib/js-sdk-contrib/libs/shared/flagd-core"
   ],
   "keywords": [
     "openfeature",
@@ -29,5 +30,11 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/open-feature/flagd-ofrep-cf-worker.git"
+  },
+  "devDependencies": {
+    "@types/imurmurhash": "^0.1.4",
+    "@types/node": "^25.0.10",
+    "@types/object-hash": "^3.0.6",
+    "@types/semver": "^7.7.1"
   }
 }

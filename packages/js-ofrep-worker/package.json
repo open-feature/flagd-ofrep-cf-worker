@@ -41,12 +41,10 @@
   },
   "dependencies": {
     "@openfeature/core": "^1.9.1",
-    "json-logic-js": "^2.0.5",
-    "imurmurhash": "^0.1.4"
+    "@openfeature/flagd-core": "^1.1.0"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20260127.0",
-    "@types/imurmurhash": "^0.1.4",
     "tsup": "^8.5.1",
     "typescript": "^5.7.0"
   },
