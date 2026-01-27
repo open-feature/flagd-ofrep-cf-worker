@@ -1,0 +1,33 @@
+{
+  "name": "flagd-ofrep-cf-worker",
+  "version": "0.0.0",
+  "private": true,
+  "description": "flagd OFREP Cloudflare Workers - JS and Rust implementations for in-process flag evaluation",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "build": "npm run build --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "dev:js": "npm run dev --workspace=examples/js-worker"
+  },
+  "workspaces": [
+    "packages/*",
+    "examples/*"
+  ],
+  "keywords": [
+    "openfeature",
+    "flagd",
+    "ofrep",
+    "cloudflare",
+    "workers",
+    "feature-flags"
+  ],
+  "author": "OpenFeature",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/open-feature/flagd-ofrep-cf-worker.git"
+  }
+}

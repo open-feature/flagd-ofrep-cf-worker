@@ -1,0 +1,14 @@
+name = "flagd-ofrep-js-worker"
+main = "src/index.ts"
+compatibility_date = "2024-01-01"
+
+# Uncomment to deploy
+# account_id = "your-account-id"
+
+[dev]
+port = 8787
+
+# Future: KV namespace for runtime flag updates
+# [[kv_namespaces]]
+# binding = "FLAGS"
+# id = "your-kv-namespace-id"

@@ -1,0 +1,20 @@
+{
+  "name": "js-worker-example",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Example Cloudflare Worker using @openfeature/flagd-ofrep-cf-worker",
+  "main": "src/index.ts",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@openfeature/flagd-ofrep-cf-worker": "*"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20241230.0",
+    "typescript": "^5.3.0",
+    "wrangler": "^4.60.0"
+  }
+}
