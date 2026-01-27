@@ -3,6 +3,7 @@
 ## Git Commits
 
 - Sign off all commits: `git commit -s -m "message"`
+- Keep commits to a single sentance
 - Use [Conventional Commits](https://www.conventionalcommits.org/) format: `<type>: <description>`
 - Types: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `chore`
 

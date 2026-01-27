@@ -163,9 +163,11 @@ jsonLogic.add_operation('sem_ver', (v1: unknown, op: unknown, v2: unknown) => {
  */
 class Targeting {
   private readonly logic: unknown;
+  private readonly logger: Logger;
 
-  constructor(logic: unknown, _logger: Logger) {
+  constructor(logic: unknown, logger: Logger) {
     this.logic = logic;
+    this.logger = logger;
   }
 
   evaluate<T extends JsonValue>(flagKey: string, ctx: EvaluationContext): T {
@@ -176,7 +178,10 @@ class Targeting {
         timestamp: Math.floor(Date.now() / 1000),
       },
     };
-    return jsonLogic.apply(this.logic, context) as T;
+    
+    const result = jsonLogic.apply(this.logic, context) as T;
+    this.logger.debug(`Targeting evaluation for '${flagKey}': ${JSON.stringify(result)}`);
+    return result;
   }
 }
 
