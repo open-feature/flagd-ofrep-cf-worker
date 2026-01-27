@@ -4,7 +4,7 @@
   "private": true,
   "description": "flagd OFREP Cloudflare Workers - JS and Rust implementations for in-process flag evaluation",
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">=25.0.0"
   },
   "scripts": {
     "build": "npm run build --workspaces --if-present",

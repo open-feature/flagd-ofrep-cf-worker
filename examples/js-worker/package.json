@@ -13,8 +13,8 @@
     "@openfeature/flagd-ofrep-cf-worker": "*"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20241230.0",
-    "typescript": "^5.3.0",
-    "wrangler": "^4.60.0"
+    "@cloudflare/workers-types": "^4.20260127.0",
+    "typescript": "^5.7.0",
+    "wrangler": "^4.61.0"
   }
 }
