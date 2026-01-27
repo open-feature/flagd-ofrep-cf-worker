@@ -1,4 +1,4 @@
-import { createOfrepHandler, OfrepHandler } from '@openfeature/flagd-ofrep-cf-worker';
+import { OfrepHandler } from '@openfeature/flagd-ofrep-cf-worker';
 
 // Import the flag configuration
 // In a real application, you might load this from KV or an external source
@@ -8,7 +8,7 @@ import flags from './flags.json';
 const ofrepHandler = new OfrepHandler({ flags });
 
 export default {
-  async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
+  async fetch(request: Request, _env: Env, _ctx: ExecutionContext): Promise<Response> {
     const url = new URL(request.url);
 
     // Health check endpoint
