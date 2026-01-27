@@ -40,14 +40,14 @@
     "directory": "packages/js-ofrep-worker"
   },
   "dependencies": {
-    "@openfeature/core": "^1.6.0",
-    "json-logic-js": "^2.0.2",
+    "@openfeature/core": "^1.9.1",
+    "json-logic-js": "^2.0.5",
     "imurmurhash": "^0.1.4"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20260127.0",
     "@types/imurmurhash": "^0.1.4",
-    "tsup": "^8.0.0",
+    "tsup": "^8.5.1",
     "typescript": "^5.7.0"
   },
   "peerDependencies": {
