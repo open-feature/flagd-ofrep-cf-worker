@@ -1,3 +1,6 @@
 [submodule "contrib/js-sdk-contrib"]
 	path = contrib/js-sdk-contrib
 	url = https://github.com/DevCycleHQ-Sandbox/js-sdk-contrib.git
+[submodule "contrib/rust-sdk-contrib"]
+	path = contrib/rust-sdk-contrib
+	url = https://github.com/DevCycleHQ-Sandbox/rust-sdk-contrib.git

@@ -1,6 +1,16 @@
-import type { EvaluationContext, JsonValue, FlagMetadata } from '@openfeature/core';
+import type { EvaluationContext, JsonValue, FlagMetadata, Logger } from '@openfeature/core';
 import { StandardResolutionReasons, ErrorCode } from '@openfeature/core';
 import { FlagdCore } from '@openfeature/flagd-core';
+
+/**
+ * Default console logger
+ */
+const defaultLogger: Logger = {
+  error: (...args) => console.error('[FlagdCore]', ...args),
+  warn: (...args) => console.warn('[FlagdCore]', ...args),
+  info: (...args) => console.info('[FlagdCore]', ...args),
+  debug: (...args) => console.debug('[FlagdCore]', ...args),
+};
 
 /**
  * Result of a flag resolution with all relevant metadata
@@ -50,9 +60,9 @@ export class FlagStore {
   private readonly core: FlagdCore;
   private flagSetMetadata: FlagMetadata = {};
 
-  constructor(flags: string | object) {
+  constructor(flags: string | object, logger: Logger = defaultLogger) {
     // Initialize FlagdCore with workers: true for interpreter mode
-    this.core = new FlagdCore(undefined, undefined, { workers: true });
+    this.core = new FlagdCore(undefined, logger, { workers: true });
     this.setFlags(flags);
   }
 
