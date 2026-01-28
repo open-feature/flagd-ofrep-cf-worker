@@ -458,7 +458,7 @@ npm run build:validators
 - [OFREP Specification](https://github.com/open-feature/protocol) - OpenFeature Remote Evaluation Protocol
 - [js-sdk-contrib](https://github.com/open-feature/js-sdk-contrib) - OpenFeature JavaScript SDK contributions
 - [rust-sdk-contrib](https://github.com/open-feature/rust-sdk-contrib) - OpenFeature Rust SDK contributions
-- [flagd-evaluator](https://github.com/open-feature/flagd-evaluator) - Standalone WASM-first flagd evaluator (alternative approach, see [comparison](docs/rust-wasm-approaches.md))
+- [flagd-evaluator](https://github.com/open-feature-forking/flagd-evaluator) - Standalone WASM-first flagd evaluator (alternative approach, see [comparison](docs/rust-wasm-approaches.md))
 
 ## License
 

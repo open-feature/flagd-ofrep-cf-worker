@@ -12,7 +12,7 @@ There are two independent efforts to enable flagd flag evaluation in WASM:
 | Project | Repository | Approach |
 |---------|------------|----------|
 | flagd-ofrep-cf-worker | [open-feature/flagd-ofrep-cf-worker](https://github.com/open-feature/flagd-ofrep-cf-worker) | Fork existing SDK, add WASM support |
-| flagd-evaluator | [open-feature/flagd-evaluator](https://github.com/open-feature/flagd-evaluator) | New standalone WASM-first crate |
+| flagd-evaluator | [open-feature-forking/flagd-evaluator](https://github.com/open-feature-forking/flagd-evaluator) | New standalone WASM-first crate |
 
 ---
 
@@ -190,7 +190,7 @@ This would:
 
 ## References
 
-- [flagd-evaluator repository](https://github.com/open-feature/flagd-evaluator)
+- [flagd-evaluator repository](https://github.com/open-feature-forking/flagd-evaluator)
 - [rust-sdk-contrib wasm feature](https://github.com/DevCycleHQ-Sandbox/rust-sdk-contrib/tree/feat/wasm-support)
 - [Cloudflare Workers Rust documentation](https://developers.cloudflare.com/workers/languages/rust/)
 - [Chicory - Pure Java WASM runtime](https://github.com/nicknisi/chicory)
