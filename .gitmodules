@@ -4,3 +4,6 @@
 [submodule "contrib/rust-sdk-contrib"]
 	path = contrib/rust-sdk-contrib
 	url = https://github.com/DevCycleHQ-Sandbox/rust-sdk-contrib.git
+[submodule "contrib/flagd-evaluator"]
+	path = contrib/flagd-evaluator
+	url = https://github.com/DevCycleHQ-Sandbox/flagd-evaluator.git
