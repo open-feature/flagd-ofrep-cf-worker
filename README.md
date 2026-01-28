@@ -276,15 +276,11 @@ See [packages/rust-ofrep-worker/README.md](packages/rust-ofrep-worker/README.md)
 
 ## Rust Forking Worker
 
-### Overview
-
-The Rust Forking Worker uses [`forking-flagd-evaluator`](https://github.com/open-feature-forking/flagd-evaluator), a standalone WASM-first evaluator that was originally designed for embedding in Java applications via Chicory. This provides an alternative to the forked `rust-sdk-contrib` approach.
-
-For a detailed comparison of the two Rust approaches, see [docs/rust-wasm-approaches.md](docs/rust-wasm-approaches.md).
-
 ### The Challenge
 
-The `forking-flagd-evaluator` crate was designed for Chicory (a Java WASM runtime) and includes a WASM host import for getting the current time:
+The [`forking-flagd-evaluator`](https://github.com/open-feature-forking/flagd-evaluator) is a standalone WASM-first evaluator originally designed for embedding in Java applications via [Chicory](https://github.com/nickovs/chicory). It provides an alternative to the `rust-sdk-contrib` approach with a cleaner, purpose-built architecture.
+
+However, it includes a WASM host import for getting the current time (used for `$flagd.timestamp` context enrichment):
 
 ```rust
 #[link(wasm_import_module = "host")]
@@ -293,18 +289,41 @@ extern "C" {
 }
 ```
 
-This causes esbuild to fail when bundling for Cloudflare Workers because there's no `"host"` module in the browser/worker environment.
+This causes esbuild to fail when bundling for Cloudflare Workers:
+
+```
+Could not resolve "host"
+    index.js:428:25:
+      428 │ import * as import1 from "host"
+```
+
+In Chicory, the Java host provides this module. In Cloudflare Workers, there's no equivalent - we need to use JavaScript's `Date.now()` instead.
 
 ### The Solution
 
-We maintain a fork at [`DevCycleHQ-Sandbox/flagd-evaluator`](https://github.com/DevCycleHQ-Sandbox/flagd-evaluator) that adds a `js-time` feature. When enabled, this feature:
+We maintain a fork that adds a `js-time` feature flag. When enabled, this feature:
 
 1. **Disables the host import**: The `extern "C"` block is conditionally compiled out
 2. **Uses JavaScript time**: Calls `js_sys::Date::now()` instead of the host function
 
-**Changes to `Cargo.toml`:**
+The feature is additive - default builds still work with Chicory, but enabling `js-time` makes it Cloudflare Workers compatible.
+
+#### Fork Details
+
+The fork is maintained at [`DevCycleHQ-Sandbox/flagd-evaluator`](https://github.com/DevCycleHQ-Sandbox/flagd-evaluator) on the `feat/js-time-feature` branch.
+
+**Key changes:**
+
+| File | Changes |
+|------|---------|
+| `Cargo.toml` | Added `js-time` feature, optional `js-sys` dependency |
+| `src/lib.rs` | Gated host import behind `#[cfg(not(feature = "js-time"))]` |
+| `src/lib.rs` | Added `js_sys::Date::now()` path when `js-time` enabled |
+
+**Cargo.toml changes:**
 ```toml
 [features]
+default = []
 js-time = ["js-sys"]
 
 [dependencies]
@@ -326,10 +345,57 @@ pub fn get_current_time() -> u64 {
     
     #[cfg(all(target_family = "wasm", not(feature = "js-time")))]
     { unsafe { host_get_current_time() } }
+    
+    #[cfg(not(target_family = "wasm"))]
+    { std::time::SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs() }
 }
 ```
 
+#### Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                 Rust Forking Worker (WASM)                      │
+│  ┌───────────────────────────────────────────────────────────┐  │
+│  │          rust-ofrep-worker-forking crate                  │  │
+│  │  • OfrepHandler - HTTP request/response handling          │  │
+│  │  • OFREP types (Request, Response, Error)                 │  │
+│  └───────────────────────────────────────────────────────────┘  │
+│                            │                                    │
+│                            ▼                                    │
+│  ┌───────────────────────────────────────────────────────────┐  │
+│  │         flagd-evaluator (js-time feature)                 │  │
+│  │  • FlagEvaluator - standalone evaluation engine           │  │
+│  │  • Uses js_sys::Date::now() for timestamps                │  │
+│  │  • No OpenFeature SDK dependency                          │  │
+│  └───────────────────────────────────────────────────────────┘  │
+│                            │                                    │
+│                            ▼                                    │
+│  ┌───────────────────────────────────────────────────────────┐  │
+│  │              Pure Rust Dependencies                       │  │
+│  │  • datalogic-rs - JSONLogic evaluation                    │  │
+│  │  • murmurhash3 - fractional rollout bucketing             │  │
+│  │  • serde_json - JSON parsing                              │  │
+│  └───────────────────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+#### Key Benefits
+
+- **Standalone design**: No OpenFeature SDK dependency, purpose-built for WASM
+- **Dual-runtime support**: Same crate works in Chicory (Java) and Cloudflare Workers
+- **Native WASM**: Compiles to WebAssembly bytecode, no `new Function()` restrictions
+- **Type safety**: Full Rust type checking at compile time
+- **Same flag format**: Uses identical flagd JSON configuration
+
+For a detailed comparison of the two Rust approaches, see [docs/rust-wasm-approaches.md](docs/rust-wasm-approaches.md).
+
 ### Quick Start (Rust Forking)
+
+**Prerequisites:**
+- Rust toolchain via `rustup`
+- `wasm32-unknown-unknown` target: `rustup target add wasm32-unknown-unknown`
+- Node.js 25+ (for wrangler)
 
 ```bash
 # Build the Rust forking worker
