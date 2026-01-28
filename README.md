@@ -147,28 +147,40 @@ See [packages/js-ofrep-worker/README.md](packages/js-ofrep-worker/README.md) for
 
 ### The Challenge
 
-The standard flagd Rust SDK (`open-feature-flagd` crate) cannot compile to WASM for Cloudflare Workers because:
+The standard flagd Rust SDK (`open-feature-flagd` crate) cannot compile to WASM for Cloudflare Workers.
+
+**Important clarification:** Cloudflare Workers *do* support async Rust via [`wasm-bindgen-futures`](https://rustwasm.github.io/wasm-bindgen/api/wasm_bindgen_futures/), which bridges Rust Futures to JavaScript Promises. The `workers-rs` crate uses this automatically. **The problem is specifically `tokio`, not async in general.**
+
+The `open-feature` Rust crate **unconditionally** depends on `tokio`, which depends on `mio` for I/O polling:
+
+```
+open-feature v0.2.7
+└── tokio v1.49.0
+    └── mio v1.1.1  ← Uses system calls (epoll/kqueue) not available in WASM
+```
+
+Even with `--no-default-features`, the `open-feature` crate still pulls in tokio. This is a limitation of the upstream crate design.
 
 | Dependency | Usage | Problem |
 |------------|-------|---------|
-| `tokio` | Async runtime | Not compatible with WASM/Workers environment |
-| `open-feature` crate | OpenFeature SDK | Pulls in tokio via async traits |
-| `mio` | I/O polling | Uses system calls not available in WASM |
-
-The SDK is designed for server environments with full async runtime support, not edge computing with WASM.
+| `tokio` | Async runtime | Uses `mio` for I/O which requires system calls |
+| `open-feature` crate | OpenFeature SDK | Unconditionally depends on tokio |
+| `mio` | I/O polling | Uses `epoll`/`kqueue`/etc. not available in WASM |
 
 ### The Solution
 
-We created a **fork of the flagd Rust SDK** with a new `wasm` feature that:
+Since we cannot use the `open-feature` crate at all (it unconditionally pulls in tokio), we created a **fork of the flagd Rust SDK** with a new `wasm` feature that bypasses it entirely:
 
 1. **Makes `open-feature` dependency optional**: The core evaluation logic doesn't need the full OpenFeature SDK
-2. **Creates `WasmEvaluationContext`**: A lightweight context type without async dependencies
+2. **Creates `WasmEvaluationContext`**: A lightweight context type replacing `open_feature::EvaluationContext`
 3. **Adds `SimpleFlagStore`**: Synchronous flag evaluation using `serde_json::Value` directly
 4. **Gates async code**: All tokio-dependent code is behind `#[cfg(feature = "tokio")]`
 
+The evaluation logic itself is synchronous (JSONLogic rules, fractional rollouts, etc.), so avoiding tokio doesn't limit functionality - it just requires alternative types for the evaluation context.
+
 #### Fork Details
 
-The fork is maintained at [`open-feature/rust-sdk-contrib`](https://github.com/open-feature/rust-sdk-contrib) on the `feat/wasm-support` branch.
+The fork is maintained at [`DevCycleHQ-Sandbox/rust-sdk-contrib`](https://github.com/DevCycleHQ-Sandbox/rust-sdk-contrib/tree/feat/wasm-support) on the `feat/wasm-support` branch.
 
 **Key changes to the `flagd` crate:**
 
