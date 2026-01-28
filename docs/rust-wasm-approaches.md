@@ -7,12 +7,12 @@ This document compares two approaches for running flagd evaluation in WebAssembl
 There are two independent efforts to enable flagd flag evaluation in WASM:
 
 1. **This repository** (`flagd-ofrep-cf-worker`) - Fork of rust-sdk-contrib with `wasm` feature
-2. **flagd-evaluator** - Standalone WASM-first evaluator written from scratch
+2. **forking-flagd-evaluator** - Standalone WASM-first evaluator written from scratch
 
 | Project | Repository | Approach |
 |---------|------------|----------|
 | flagd-ofrep-cf-worker | [open-feature/flagd-ofrep-cf-worker](https://github.com/open-feature/flagd-ofrep-cf-worker) | Fork existing SDK, add WASM support |
-| flagd-evaluator | [open-feature-forking/flagd-evaluator](https://github.com/open-feature-forking/flagd-evaluator) | New standalone WASM-first crate |
+| forking-flagd-evaluator | [open-feature-forking/flagd-evaluator](https://github.com/open-feature-forking/flagd-evaluator) | New standalone WASM-first crate |
 
 ---
 
@@ -43,7 +43,7 @@ There are two independent efforts to enable flagd flag evaluation in WASM:
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-### flagd-evaluator (Standalone Approach)
+### forking-flagd-evaluator (Standalone Approach)
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -88,7 +88,7 @@ Both projects use the same core Rust libraries:
 
 ### Implementation Differences
 
-| Feature | This Repo | flagd-evaluator |
+| Feature | This Repo | forking-flagd-evaluator |
 |---------|-----------|-----------------|
 | **Strategy** | Fork existing SDK | Write from scratch |
 | **Code changes** | ~500 lines modified | ~1300+ lines new |
@@ -119,7 +119,7 @@ let request = OfrepRequest { context: Some(ctx) };
 let result = handler.evaluate_flag("my-flag", &request);
 ```
 
-### flagd-evaluator
+### forking-flagd-evaluator
 
 ```rust
 use flagd_evaluator::{FlagEvaluator, ValidationMode};
@@ -136,7 +136,7 @@ let bool_result = evaluator.evaluate_bool("my-flag", &json!({}));
 let string_result = evaluator.evaluate_string("other-flag", &context);
 ```
 
-### WASM FFI (flagd-evaluator only)
+### WASM FFI (forking-flagd-evaluator only)
 
 ```c
 // C-style exports for any WASM host
@@ -160,7 +160,7 @@ extern "C" {
 - Need **workers-rs** integration (KV, Durable Objects, etc.)
 - Prefer **minimal code changes** over a rewrite
 
-### Use flagd-evaluator When:
+### Use forking-flagd-evaluator When:
 
 - Need **portable WASM** that works with any runtime
 - Building for **Java** (Chicory) or **Python** environments
@@ -174,11 +174,11 @@ extern "C" {
 
 Long-term, these approaches could be consolidated:
 
-1. **flagd-evaluator as core** - Use as the portable WASM evaluation engine
+1. **forking-flagd-evaluator as core** - Use as the portable WASM evaluation engine
 2. **Thin wrappers** - Create runtime-specific wrappers:
-   - `flagd-evaluator-cf-worker` - Cloudflare Workers wrapper
-   - `flagd-evaluator-java` - Java/Chicory wrapper (already exists)
-   - `flagd-evaluator-python` - Python wrapper (already exists)
+   - `forking-flagd-evaluator-cf-worker` - Cloudflare Workers wrapper
+   - `forking-flagd-evaluator-java` - Java/Chicory wrapper (already exists)
+   - `forking-flagd-evaluator-python` - Python wrapper (already exists)
 
 This would:
 - ✅ Eliminate duplicate evaluation logic
@@ -190,7 +190,7 @@ This would:
 
 ## References
 
-- [flagd-evaluator repository](https://github.com/open-feature-forking/flagd-evaluator)
+- [forking-flagd-evaluator repository](https://github.com/open-feature-forking/flagd-evaluator)
 - [rust-sdk-contrib wasm feature](https://github.com/DevCycleHQ-Sandbox/rust-sdk-contrib/tree/feat/wasm-support)
 - [Cloudflare Workers Rust documentation](https://developers.cloudflare.com/workers/languages/rust/)
 - [Chicory - Pure Java WASM runtime](https://github.com/nicknisi/chicory)
