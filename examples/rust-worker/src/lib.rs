@@ -4,23 +4,28 @@
 //! an OFREP-compliant feature flag evaluation service on Cloudflare Workers.
 
 use rust_ofrep_worker::{OfrepHandler, OfrepRequest};
+use std::sync::OnceLock;
 use worker::*;
 
 // Include flags at compile time from the shared benchmark flags (100 flags)
 const FLAGS_JSON: &str = include_str!("../../../benchmarks/flags/benchmark-flags.json");
+
+// Lazily initialize the handler once - reused across all requests
+static HANDLER: OnceLock<OfrepHandler> = OnceLock::new();
+
+fn get_handler() -> &'static OfrepHandler {
+    HANDLER.get_or_init(|| {
+        OfrepHandler::new(FLAGS_JSON).expect("Failed to initialize flag store with embedded flags")
+    })
+}
 
 #[event(fetch)]
 async fn main(mut req: Request, _env: Env, _ctx: Context) -> Result<Response> {
     // Set up panic hook for better error messages
     console_error_panic_hook::set_once();
 
-    // Initialize the OFREP handler with flags
-    let handler = match OfrepHandler::new(FLAGS_JSON) {
-        Ok(h) => h,
-        Err(e) => {
-            return Response::error(format!("Failed to initialize flag store: {}", e), 500);
-        }
-    };
+    // Get the cached handler (initializes once on first request)
+    let handler = get_handler();
 
     let url = req.url()?;
     let path = url.path();
