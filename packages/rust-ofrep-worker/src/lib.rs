@@ -19,7 +19,7 @@
 //! let bulk_result = handler.evaluate_all(&request);
 //! ```
 
-use open_feature_flagd::{SimpleFlagStore, WasmEvaluationContext};
+use open_feature_flagd::{ContextFieldValue, SimpleFlagStore, WasmEvaluationContext};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
@@ -191,24 +191,43 @@ fn to_evaluation_context(ctx: Option<&OfrepContext>) -> WasmEvaluationContext {
         }
 
         for (key, value) in &ctx.custom {
-            eval_ctx = match value {
-                serde_json::Value::String(s) => eval_ctx.with_custom_field(key.clone(), s.clone()),
-                serde_json::Value::Bool(b) => eval_ctx.with_custom_field(key.clone(), *b),
-                serde_json::Value::Number(n) => {
-                    if let Some(i) = n.as_i64() {
-                        eval_ctx.with_custom_field(key.clone(), i)
-                    } else if let Some(f) = n.as_f64() {
-                        eval_ctx.with_custom_field(key.clone(), f)
-                    } else {
-                        eval_ctx
-                    }
-                }
-                _ => eval_ctx, // Skip complex types for now
-            };
+            if let Some(field_value) = json_to_context_field_value(value) {
+                eval_ctx = eval_ctx.with_custom_field(key.clone(), field_value);
+            }
         }
     }
 
     eval_ctx
+}
+
+/// Recursively convert a serde_json::Value to ContextFieldValue.
+fn json_to_context_field_value(value: &serde_json::Value) -> Option<ContextFieldValue> {
+    match value {
+        serde_json::Value::String(s) => Some(ContextFieldValue::String(s.clone())),
+        serde_json::Value::Bool(b) => Some(ContextFieldValue::Bool(*b)),
+        serde_json::Value::Number(n) => {
+            if let Some(i) = n.as_i64() {
+                Some(ContextFieldValue::Int(i))
+            } else if let Some(f) = n.as_f64() {
+                Some(ContextFieldValue::Float(f))
+            } else {
+                None
+            }
+        }
+        serde_json::Value::Array(arr) => {
+            let converted: Vec<ContextFieldValue> =
+                arr.iter().filter_map(json_to_context_field_value).collect();
+            Some(ContextFieldValue::Array(converted))
+        }
+        serde_json::Value::Object(obj) => {
+            let converted: HashMap<String, ContextFieldValue> = obj
+                .iter()
+                .filter_map(|(k, v)| json_to_context_field_value(v).map(|fv| (k.clone(), fv)))
+                .collect();
+            Some(ContextFieldValue::Object(converted))
+        }
+        serde_json::Value::Null => None,
+    }
 }
 
 /// Internal flag evaluation function.
