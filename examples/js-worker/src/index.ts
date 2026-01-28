@@ -1,8 +1,8 @@
 import { OfrepHandler } from '@openfeature/flagd-ofrep-cf-worker';
 
 // Import the flag configuration
-// In a real application, you might load this from KV or an external source
-import flags from './flags.json';
+// Using the shared benchmark flags (100 flags for performance testing)
+import flags from '../../../benchmarks/flags/benchmark-flags.json';
 
 // Create the OFREP handler
 const ofrepHandler = new OfrepHandler({ flags });

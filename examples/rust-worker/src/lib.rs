@@ -6,8 +6,8 @@
 use rust_ofrep_worker::{OfrepHandler, OfrepRequest};
 use worker::*;
 
-// Include flags at compile time from the JS worker example
-const FLAGS_JSON: &str = include_str!("../../js-worker/src/flags.json");
+// Include flags at compile time from the shared benchmark flags (100 flags)
+const FLAGS_JSON: &str = include_str!("../../../benchmarks/flags/benchmark-flags.json");
 
 #[event(fetch)]
 async fn main(mut req: Request, _env: Env, _ctx: Context) -> Result<Response> {
