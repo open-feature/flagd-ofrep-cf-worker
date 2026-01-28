@@ -4,12 +4,13 @@ Experimental repository for running flagd in-process evaluation in Cloudflare Wo
 
 ## Overview
 
-This project enables feature flag evaluation entirely within Cloudflare Workers using the flagd evaluation engine. It includes two implementations:
+This project enables feature flag evaluation entirely within Cloudflare Workers using the flagd evaluation engine. It includes three implementations:
 
 - **JavaScript Worker**: Uses a Workers-compatible fork of `@openfeature/flagd-core`
 - **Rust Worker**: Uses the flagd Rust SDK compiled to native WebAssembly
+- **Rust Forking Worker**: Uses the standalone `forking-flagd-evaluator` crate (WASM-first design)
 
-Both implementations expose the same [OFREP API](https://github.com/open-feature/protocol), allowing clients to evaluate flags via HTTP.
+All implementations expose the same [OFREP API](https://github.com/open-feature/protocol), allowing clients to evaluate flags via HTTP.
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -42,15 +43,18 @@ Both implementations expose the same [OFREP API](https://github.com/open-feature
 ```
 flagd-ofrep-cf-worker/
 ├── packages/
-│   ├── js-ofrep-worker/       # Reusable JS package
-│   └── rust-ofrep-worker/     # Reusable Rust crate
+│   ├── js-ofrep-worker/           # Reusable JS package
+│   ├── rust-ofrep-worker/         # Reusable Rust crate (uses rust-sdk-contrib)
+│   └── rust-ofrep-worker-forking/ # Reusable Rust crate (uses flagd-evaluator)
 ├── examples/
-│   ├── js-worker/             # JS Cloudflare Worker example
-│   └── rust-worker/           # Rust Cloudflare Worker example
+│   ├── js-worker/                 # JS Cloudflare Worker example
+│   ├── rust-worker/               # Rust Cloudflare Worker example
+│   └── rust-worker-forking/       # Rust Cloudflare Worker (forking) example
 ├── contrib/
-│   ├── js-sdk-contrib/        # Git submodule: forked JS flagd-core
-│   └── rust-sdk-contrib/      # Git submodule: forked Rust flagd SDK
-└── .plans/                    # Planning documents
+│   ├── js-sdk-contrib/            # Git submodule: forked JS flagd-core
+│   ├── rust-sdk-contrib/          # Git submodule: forked Rust flagd SDK
+│   └── flagd-evaluator/           # Git submodule: forked flagd-evaluator
+└── docs/                          # Documentation
 ```
 
 ---
@@ -270,6 +274,96 @@ See [packages/rust-ofrep-worker/README.md](packages/rust-ofrep-worker/README.md)
 
 ---
 
+## Rust Forking Worker
+
+### Overview
+
+The Rust Forking Worker uses [`forking-flagd-evaluator`](https://github.com/open-feature-forking/flagd-evaluator), a standalone WASM-first evaluator that was originally designed for embedding in Java applications via Chicory. This provides an alternative to the forked `rust-sdk-contrib` approach.
+
+For a detailed comparison of the two Rust approaches, see [docs/rust-wasm-approaches.md](docs/rust-wasm-approaches.md).
+
+### The Challenge
+
+The `forking-flagd-evaluator` crate was designed for Chicory (a Java WASM runtime) and includes a WASM host import for getting the current time:
+
+```rust
+#[link(wasm_import_module = "host")]
+extern "C" {
+    fn host_get_current_time() -> u64;
+}
+```
+
+This causes esbuild to fail when bundling for Cloudflare Workers because there's no `"host"` module in the browser/worker environment.
+
+### The Solution
+
+We maintain a fork at [`DevCycleHQ-Sandbox/flagd-evaluator`](https://github.com/DevCycleHQ-Sandbox/flagd-evaluator) that adds a `js-time` feature. When enabled, this feature:
+
+1. **Disables the host import**: The `extern "C"` block is conditionally compiled out
+2. **Uses JavaScript time**: Calls `js_sys::Date::now()` instead of the host function
+
+**Changes to `Cargo.toml`:**
+```toml
+[features]
+js-time = ["js-sys"]
+
+[dependencies]
+js-sys = { version = "0.3", optional = true }
+```
+
+**Conditional compilation in `lib.rs`:**
+```rust
+// Host import only for Chicory (non-js-time builds)
+#[cfg(all(target_family = "wasm", not(feature = "js-time")))]
+#[link(wasm_import_module = "host")]
+extern "C" {
+    fn host_get_current_time() -> u64;
+}
+
+pub fn get_current_time() -> u64 {
+    #[cfg(all(target_family = "wasm", feature = "js-time"))]
+    { (js_sys::Date::now() / 1000.0) as u64 }
+    
+    #[cfg(all(target_family = "wasm", not(feature = "js-time")))]
+    { unsafe { host_get_current_time() } }
+}
+```
+
+### Quick Start (Rust Forking)
+
+```bash
+# Build the Rust forking worker
+cd examples/rust-worker-forking
+npx wrangler build
+
+# Run locally
+npx wrangler dev --port 8789
+```
+
+### Package Usage
+
+```rust
+use rust_ofrep_worker_forking::{OfrepHandler, OfrepRequest};
+use worker::*;
+
+const FLAGS_JSON: &str = include_str!("flags.json");
+
+#[event(fetch)]
+async fn main(mut req: Request, _env: Env, _ctx: Context) -> Result<Response> {
+    let handler = OfrepHandler::new(FLAGS_JSON)?;
+    
+    let body: OfrepRequest = req.json().await.unwrap_or_default();
+    match handler.evaluate_flag("my-flag", &body) {
+        Ok(result) => Response::from_json(&result),
+        Err(error) => Response::from_json(&error),
+    }
+}
+```
+
+See [packages/rust-ofrep-worker-forking/README.md](packages/rust-ofrep-worker-forking/README.md) for full documentation.
+
+---
+
 ## OFREP API Reference
 
 Both JS and Rust workers expose identical OFREP endpoints:
@@ -378,18 +472,25 @@ Flags use the [flagd flag definition format](https://flagd.dev/reference/flag-de
 
 ---
 
-## Comparison: JS vs Rust
+## Comparison: JS vs Rust Implementations
 
-| Aspect | JavaScript Worker | Rust Worker |
-|--------|-------------------|-------------|
-| Bundle size (gzip) | ~180 KB | ~562 KB |
-| Evaluation engine | json-logic-engine (interpreted) | datalogic-rs (native) |
-| Build time | Fast (~2s) | Slower (~10s) |
-| Type safety | Runtime | Compile-time |
-| Dependencies | Fork of flagd-core | Fork of flagd Rust SDK |
-| Code generation | None (interpreter mode) | None (native WASM) |
+| Aspect | JavaScript Worker | Rust Worker | Rust Forking Worker |
+|--------|-------------------|-------------|---------------------|
+| Bundle size (gzip) | ~180 KB | ~562 KB | ~667 KB |
+| Evaluation engine | json-logic-engine (interpreted) | datalogic-rs (native) | datalogic-rs (native) |
+| Build time | Fast (~2s) | Slower (~10s) | Slower (~10s) |
+| Type safety | Runtime | Compile-time | Compile-time |
+| Dependencies | Fork of flagd-core | Fork of rust-sdk-contrib | Fork of flagd-evaluator |
+| Code generation | None (interpreter mode) | None (native WASM) | None (native WASM) |
+| Upstream origin | OpenFeature JS SDK | OpenFeature Rust SDK | Forking flagd-evaluator |
 
-Both implementations pass the same OFREP compliance tests and support identical flag configurations.
+All implementations pass the same OFREP compliance tests and support identical flag configurations.
+
+### When to Use Which
+
+- **JavaScript Worker**: Best for teams already using TypeScript/JavaScript, fastest build times
+- **Rust Worker**: Best for teams using the OpenFeature Rust SDK ecosystem
+- **Rust Forking Worker**: Best if you want a standalone evaluator with minimal dependencies, or are also using the Java/Chicory integration
 
 ---
 
@@ -397,6 +498,7 @@ Both implementations pass the same OFREP compliance tests and support identical 
 
 - [x] **JavaScript Worker**: Workers-compatible flagd-core fork
 - [x] **Rust Worker**: WASM-compatible flagd Rust SDK fork
+- [x] **Rust Forking Worker**: WASM-compatible forking-flagd-evaluator fork
 - [ ] **Upstream PRs**: Contribute Workers/WASM compatibility back to upstream repos
 - [ ] **Performance Benchmarks**: Compare JS vs Rust evaluation performance
 - [ ] **Cloudflare KV**: Load flag configurations from KV at runtime
@@ -428,6 +530,13 @@ cd examples/rust-worker
 npx wrangler dev --port 8788
 ```
 
+### Run Rust Forking Worker
+
+```bash
+cd examples/rust-worker-forking
+npx wrangler dev --port 8789
+```
+
 ### Update Submodules
 
 ```bash
@@ -438,6 +547,10 @@ git pull origin feat/workers-compatibility
 # Rust SDK contrib
 cd contrib/rust-sdk-contrib
 git pull origin feat/wasm-support
+
+# flagd-evaluator (forking)
+cd contrib/flagd-evaluator
+git pull origin feat/js-time-feature
 ```
 
 ### Regenerate JS Pre-compiled Validators
@@ -458,7 +571,15 @@ npm run build:validators
 - [OFREP Specification](https://github.com/open-feature/protocol) - OpenFeature Remote Evaluation Protocol
 - [js-sdk-contrib](https://github.com/open-feature/js-sdk-contrib) - OpenFeature JavaScript SDK contributions
 - [rust-sdk-contrib](https://github.com/open-feature/rust-sdk-contrib) - OpenFeature Rust SDK contributions
-- [forking-flagd-evaluator](https://github.com/open-feature-forking/flagd-evaluator) - Standalone WASM-first flagd evaluator (alternative approach, see [comparison](docs/rust-wasm-approaches.md))
+- [forking-flagd-evaluator](https://github.com/open-feature-forking/flagd-evaluator) - Standalone WASM-first flagd evaluator
+
+### Forks Used
+
+These forks add Workers/WASM compatibility features that aren't yet upstream:
+
+- [DevCycleHQ-Sandbox/js-sdk-contrib](https://github.com/DevCycleHQ-Sandbox/js-sdk-contrib) - `feat/workers-compatibility` branch
+- [DevCycleHQ-Sandbox/rust-sdk-contrib](https://github.com/DevCycleHQ-Sandbox/rust-sdk-contrib) - `feat/wasm-support` branch
+- [DevCycleHQ-Sandbox/flagd-evaluator](https://github.com/DevCycleHQ-Sandbox/flagd-evaluator) - `feat/js-time-feature` branch
 
 ## License
 
