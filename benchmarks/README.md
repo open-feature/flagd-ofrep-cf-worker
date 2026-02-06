@@ -229,9 +229,9 @@ k6 run --env WORKER_URL=https://ofrep-flagd-js-worker.<your-subdomain>.workers.d
 For production-like load testing, create a custom wrangler config with your account ID and domain routes:
 
 ```bash
-npx wrangler deploy --config examples/js-worker/your-custom-wrangler.toml
-npx wrangler deploy --config examples/rust-worker/your-custom-wrangler.toml
-npx wrangler deploy --config examples/rust-worker-forking/your-custom-wrangler.toml
+cd examples/js-worker && npx wrangler deploy --config your-custom-wrangler.toml
+cd examples/rust-worker && npx wrangler deploy --config your-custom-wrangler.toml
+cd examples/rust-worker-forking && npx wrangler deploy --config your-custom-wrangler.toml
 ```
 
 Then run benchmarks against the deployed URLs:
