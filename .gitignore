@@ -32,7 +32,13 @@ target/
 *.wasm
 pkg/
 
+# Custom wrangler deployment configs (may contain account_id and routes)
+wrangler.devcycle.toml
+
 # Environment
 .env
 .env.local
 .env.*.local
+
+# Mermaid diagrams (scratch/working files)
+docs/mermaid-diagrams/

@@ -225,5 +225,11 @@ function getWorkerName(url) {
   if (url.includes(':8787')) return 'JS Worker';
   if (url.includes(':8788')) return 'Rust Worker';
   if (url.includes(':8789')) return 'Rust Forking Worker';
-  return url;
+  // For remote deployments, extract a readable name from the URL
+  try {
+    const hostname = url.replace(/^https?:\/\//, '').split('/')[0];
+    return hostname;
+  } catch (_) {
+    return url;
+  }
 }

@@ -10,7 +10,11 @@
     "build": "npm run build --workspaces --if-present",
     "test": "npm run test --workspaces --if-present",
     "lint": "npm run lint --workspaces --if-present",
-    "dev:js": "npm run dev --workspace=examples/js-worker"
+    "dev:js": "npm run dev --workspace=examples/js-worker",
+    "deploy:js": "npm run deploy --workspace=examples/js-worker",
+    "deploy:rust": "npx wrangler deploy --config examples/rust-worker/wrangler.toml",
+    "deploy:rust-forking": "npx wrangler deploy --config examples/rust-worker-forking/wrangler.toml",
+    "deploy:all": "npm run deploy:js && npm run deploy:rust && npm run deploy:rust-forking"
   },
   "workspaces": [
     "packages/*",

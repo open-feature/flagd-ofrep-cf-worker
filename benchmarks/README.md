@@ -197,6 +197,49 @@ export const THRESHOLDS = {
 
 Edit `benchmarks/k6/config.js` to adjust `SIMPLE_CONTEXT` or `LARGE_CONTEXT`.
 
+## Remote Benchmarking
+
+You can deploy the workers to Cloudflare and run benchmarks against the deployed instances for more realistic performance data.
+
+### Deploy to workers.dev
+
+The simplest option -- deploy using the checked-in `wrangler.toml` configs:
+
+```bash
+# Login to your Cloudflare account
+npx wrangler login
+
+# Build JS packages first
+npm run build
+
+# Deploy all workers
+npm run deploy:all
+```
+
+The deploy output will print the workers.dev URLs for each worker. Use those URLs with k6:
+
+```bash
+k6 run --env WORKER_URL=https://ofrep-flagd-js-worker.<your-subdomain>.workers.dev benchmarks/k6/bulk-evaluation.js
+```
+
+> **Note:** `workers.dev` subdomains are treated as Cloudflare's Free website tier, which may apply different DDoS mitigation behavior under heavy load. For serious load testing, consider deploying with a custom wrangler config that uses custom domain routes on a zone you control.
+
+### Deploy with custom config
+
+For production-like load testing, create a custom wrangler config with your account ID and domain routes:
+
+```bash
+npx wrangler deploy --config examples/js-worker/your-custom-wrangler.toml
+npx wrangler deploy --config examples/rust-worker/your-custom-wrangler.toml
+npx wrangler deploy --config examples/rust-worker-forking/your-custom-wrangler.toml
+```
+
+Then run benchmarks against the deployed URLs:
+
+```bash
+k6 run --env WORKER_URL=https://your-custom-domain.example.com benchmarks/k6/bulk-evaluation.js
+```
+
 ## Troubleshooting
 
 ### "connection refused" errors
