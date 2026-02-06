@@ -68,7 +68,7 @@ The standard `@openfeature/flagd-core` package cannot run in Cloudflare Workers 
 | Library | Usage | Problem |
 |---------|-------|---------|
 | `ajv` | JSON Schema validation | Uses `new Function()` to compile validators at module load time |
-| `json-logic-engine` | Targeting rule evaluation | Uses `new Function()` in `.build()` compilation mode |
+| `json-logic-engine` | Targeting rule evaluation | Uses `eval()` in `.build()` compilation mode |
 
 Cloudflare Workers run in V8 isolates with strict security restrictions that block `eval()` and `new Function()`.
 

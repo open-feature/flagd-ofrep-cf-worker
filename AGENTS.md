@@ -10,3 +10,7 @@
 ## Branch Naming
 
 Use format: `<type>/<short-description>` (e.g., `feat/user-auth`, `fix/null-pointer`)
+
+## Plans
+
+Always write plans to `.plans/` folder
