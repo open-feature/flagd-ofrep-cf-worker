@@ -27,11 +27,6 @@ npm-debug.log*
 # Test coverage
 coverage/
 
-# Rust/WASM (for future)
-target/
-*.wasm
-pkg/
-
 # Custom wrangler deployment configs (may contain account_id and routes)
 wrangler.devcycle.toml
 

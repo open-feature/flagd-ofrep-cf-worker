@@ -5,11 +5,9 @@ export const CONFIG = {
   // Default worker URL (override with --env WORKER_URL=...)
   workerUrl: __ENV.WORKER_URL || 'http://localhost:8787',
   
-  // Predefined worker URLs for convenience
+  // Predefined worker URL for convenience
   workers: {
     js: 'http://localhost:8787',
-    rust: 'http://localhost:8788',
-    rustForking: 'http://localhost:8789',
   },
 };
 

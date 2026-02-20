@@ -1,9 +1,0 @@
-name = "ofrep-flagd-rust-worker"
-main = "build/worker/shim.mjs"
-compatibility_date = "2026-01-29"
-
-[build]
-command = "cargo install -q worker-build && worker-build --release"
-
-[dev]
-port = 8788

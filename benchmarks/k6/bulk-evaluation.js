@@ -1,13 +1,11 @@
 /**
  * k6 Benchmark: OFREP Bulk Flag Evaluation
  * 
- * Compares performance of JS, Rust, and Rust Forking workers
+ * Benchmarks the JS OFREP worker
  * on bulk flag evaluation with simple and large contexts.
  * 
  * Usage:
  *   k6 run --env WORKER_URL=http://localhost:8787 benchmarks/k6/bulk-evaluation.js
- *   k6 run --env WORKER_URL=http://localhost:8788 benchmarks/k6/bulk-evaluation.js
- *   k6 run --env WORKER_URL=http://localhost:8789 benchmarks/k6/bulk-evaluation.js
  */
 
 import http from 'k6/http';
@@ -223,8 +221,6 @@ function formatDuration(ms) {
 // Helper to get worker name from URL
 function getWorkerName(url) {
   if (url.includes(':8787')) return 'JS Worker';
-  if (url.includes(':8788')) return 'Rust Worker';
-  if (url.includes(':8789')) return 'Rust Forking Worker';
   // For remote deployments, extract a readable name from the URL
   try {
     const hostname = url.replace(/^https?:\/\//, '').split('/')[0];

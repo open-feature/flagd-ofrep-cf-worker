@@ -1,80 +1,40 @@
 # Challenges Running flagd-core in Cloudflare Workers
 
-## The Core Problem: Dynamic Code Generation
+## Core Problem: Dynamic Code Generation
 
-Cloudflare Workers run in a **V8 isolate** with strict security restrictions. One of the most significant restrictions is that **dynamic code generation is not allowed**:
+Cloudflare Workers run in a V8 isolate with strict runtime restrictions:
 
 - `eval()` is blocked
 - `new Function()` is blocked
-- Any library that compiles code at runtime will fail
 
-## Libraries That Failed
+Any dependency that compiles JavaScript at runtime can fail in this environment.
 
-### 1. `ajv` (JSON Schema Validator)
+## Libraries that Failed in Early Attempts
 
-Used by flagd-core at `parser.ts:19-20`:
+### 1) `ajv` schema compilation
 
-```javascript
-const ajv = new Ajv({ strict: false });
-const validate = ajv.addSchema(targetingSchema).compile(flagsSchema);
-```
+`ajv.compile()` generates JavaScript functions and can trigger:
 
-**Problem**: ajv compiles JSON schemas into JavaScript functions using `new Function()` for performance. This happens at **module load time**, not just when validation is called.
-
-**Error**:
-```
-Error compiling schema, function code: const schema2 = scope.schema[2]...
+```text
 EvalError: Code generation from strings disallowed for this context
 ```
 
-### 2. `json-logic-engine`
+### 2) `json-logic-engine` build mode
 
-Used by flagd-core for targeting rule evaluation:
+`engine.build(logic)` compiles logic rules and can trigger the same code-generation restriction.
 
-```javascript
-const engine = new LogicEngine();
-this._logicEngine = engine.build(logic);
-```
+## Practical JS-Only Approach
 
-**Problem**: `json-logic-engine` compiles JSONLogic rules into optimized JavaScript functions using `new Function()`. This is done when rules are "built" for performance.
-
-**Error**:
-```
-Invalid targeting configuration for flag 'targeted-boolean': 
-Code generation from strings disallowed for this context
-```
-
-## Why This Is Hard to Work Around
-
-1. **Module-level execution**: ajv compiles schemas when the module is imported, not when you call a function. Even if you never use validation, importing the module triggers the error.
-
-2. **Deep dependency**: These aren't direct dependencies you can easily swap - they're used internally by `@openfeature/flagd-core`.
-
-3. **No "safe mode"**: Neither library offers an interpreter-only mode that skips code generation.
-
-## The Solution We Implemented
-
-Instead of using `@openfeature/flagd-core`, we created a **Workers-compatible reimplementation**:
-
-| Original | Workers-Compatible Replacement |
-|----------|-------------------------------|
-| `ajv` for schema validation | Skip validation (assume flags validated at build time) |
-| `json-logic-engine` for rules | `json-logic-js` (interpreter-based, no code gen) |
-| `@openfeature/flagd-core` | Custom `WorkersStorage` + `WorkersFeatureFlag` classes |
+The repository now focuses on the JavaScript worker path that avoids these runtime pitfalls by using a Workers-compatible evaluation flow.
 
 ## Trade-offs
 
-| Aspect | Original flagd-core | Our Implementation |
-|--------|--------------------|--------------------|
-| Schema validation | Runtime validation | None (build-time assumed) |
-| JSONLogic performance | Compiled (fast) | Interpreted (slower) |
-| Code sharing | Shared with other providers | Workers-specific |
-| Maintenance | Upstream maintained | Must maintain separately |
+| Aspect | Standard runtime compilation path | Workers-compatible path |
+|--------|-----------------------------------|-------------------------|
+| Rule evaluation | Compiled functions | Interpreter-safe approach |
+| Runtime compatibility | Node-friendly | Cloudflare Workers-friendly |
+| Throughput ceiling | Higher in tight loops | Lower, but acceptable for OFREP HTTP usage |
 
-## Implications for Rust Worker
+## Outcome
 
-The Rust implementation will likely face similar challenges:
-
-- `datalogic-rs` needs to be verified for WASM compatibility
-- Any runtime code generation patterns will fail
-- May need a pure-interpreter JSONLogic implementation
+For OFREP usage patterns (network-bound requests with modest per-request evaluations), the Workers-compatible JS path is the maintained direction for this repo.
