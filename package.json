@@ -15,8 +15,7 @@
   },
   "workspaces": [
     "packages/js-ofrep-worker",
-    "examples/js-worker",
-    "contrib/js-sdk-contrib/libs/shared/flagd-core"
+    "examples/js-worker"
   ],
   "keywords": [
     "openfeature",
