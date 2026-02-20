@@ -61,8 +61,9 @@ export class FlagStore {
   private flagSetMetadata: FlagMetadata = {};
 
   constructor(flags: string | object, logger: Logger = defaultLogger) {
-    // Initialize FlagdCore with workers: true for interpreter mode
-    this.core = new FlagdCore(undefined, logger, { workers: true });
+    // Support both upstream and Workers-compatible FlagdCore constructors.
+    const FlagdCoreCtor = FlagdCore as unknown as new (...args: any[]) => FlagdCore;
+    this.core = new FlagdCoreCtor(undefined, logger, { workers: true });
     this.setFlags(flags);
   }
 

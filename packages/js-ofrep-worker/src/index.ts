@@ -4,7 +4,10 @@ export { OfrepHandler, createOfrepHandler } from './ofrep-handler';
 
 // Re-export from flagd-core for advanced usage
 export { FlagdCore, FeatureFlag, MemoryStorage } from '@openfeature/flagd-core';
-export type { Storage, FlagdCoreOptions } from '@openfeature/flagd-core';
+export type { Storage } from '@openfeature/flagd-core';
+export type FlagdCoreOptions = {
+  workers?: boolean;
+};
 
 // Type exports
 export type {
