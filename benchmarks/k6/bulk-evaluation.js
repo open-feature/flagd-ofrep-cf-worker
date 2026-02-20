@@ -38,7 +38,7 @@ export const options = {
       executor: 'per-vu-iterations',
       vus: 1,
       iterations: 100,
-      startTime: '15s', // Start after sequential_simple completes
+      startTime: '6s', // Start after sequential_simple completes
       exec: 'largeContext',
       tags: { context: 'large', scenario: 'sequential' },
     },
@@ -48,7 +48,7 @@ export const options = {
       executor: 'constant-vus',
       vus: 10,
       duration: '30s',
-      startTime: '35s', // Start after sequential tests
+      startTime: '12s', // Start after sequential tests
       exec: 'simpleContext',
       tags: { context: 'simple', scenario: 'concurrent' },
     },
@@ -58,7 +58,7 @@ export const options = {
       executor: 'constant-vus',
       vus: 10,
       duration: '30s',
-      startTime: '70s', // Start after concurrent_simple
+      startTime: '43s', // Start after concurrent_simple
       exec: 'largeContext',
       tags: { context: 'large', scenario: 'concurrent' },
     },
