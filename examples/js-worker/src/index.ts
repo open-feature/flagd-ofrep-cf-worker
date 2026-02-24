@@ -33,14 +33,14 @@ export default {
     }
 
     // Not found
-    return new Response(
-      JSON.stringify({ error: 'Not found' }),
-      { status: 404, headers: { 'Content-Type': 'application/json' } },
-    );
+    return new Response(JSON.stringify({ error: 'Not found' }), {
+      status: 404,
+      headers: { 'Content-Type': 'application/json' },
+    });
   },
 };
 
-// Environment bindings (for future use with KV, etc.)
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type -- Environment bindings (for future use with KV, etc.)
 interface Env {
   // FLAGS: KVNamespace;
 }

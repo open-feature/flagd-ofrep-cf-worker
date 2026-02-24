@@ -95,6 +95,7 @@ POST /ofrep/v1/evaluate/flags/{key}
 ```
 
 **Request:**
+
 ```json
 {
   "context": {
@@ -106,6 +107,7 @@ POST /ofrep/v1/evaluate/flags/{key}
 ```
 
 **Response (200):**
+
 ```json
 {
   "key": "my-feature",
@@ -125,6 +127,7 @@ POST /ofrep/v1/evaluate/flags
 ```
 
 **Request:**
+
 ```json
 {
   "context": {
@@ -134,6 +137,7 @@ POST /ofrep/v1/evaluate/flags
 ```
 
 **Response (200):**
+
 ```json
 {
   "flags": [
@@ -177,12 +181,12 @@ curl -X POST http://localhost:8787/ofrep/v1/evaluate/flags \
 
 ## Supported Targeting Features
 
-| Feature | Description | Example |
-|---------|-------------|---------|
-| JSONLogic rules | Complex conditional logic | `{"if": [{"==": [{"var": "plan"}, "premium"]}, "on", "off"]}` |
-| Fractional evaluation | Percentage-based rollouts | `{"fractional": [["control", 50], ["treatment", 50]]}` |
-| String comparison | `starts_with`, `ends_with` | `{"starts_with": [{"var": "email"}, "admin"]}` |
-| Semantic versioning | Version comparison | `{"sem_ver": [{"var": "version"}, ">=", "2.0.0"]}` |
+| Feature               | Description                | Example                                                       |
+| --------------------- | -------------------------- | ------------------------------------------------------------- |
+| JSONLogic rules       | Complex conditional logic  | `{"if": [{"==": [{"var": "plan"}, "premium"]}, "on", "off"]}` |
+| Fractional evaluation | Percentage-based rollouts  | `{"fractional": [["control", 50], ["treatment", 50]]}`        |
+| String comparison     | `starts_with`, `ends_with` | `{"starts_with": [{"var": "email"}, "admin"]}`                |
+| Semantic versioning   | Version comparison         | `{"sem_ver": [{"var": "version"}, ">=", "2.0.0"]}`            |
 
 ## Flag Configuration
 
@@ -208,6 +212,28 @@ Flags use the [flagd flag definition format](https://flagd.dev/reference/flag-de
 
 ```bash
 npm run build
+```
+
+### Run Tests
+
+```bash
+npm test
+```
+
+### Lint
+
+```bash
+npm run lint
+```
+
+### Format
+
+```bash
+# Check formatting
+npm run format
+
+# Auto-fix formatting
+npm run format:fix
 ```
 
 ### Run Worker Locally
@@ -237,6 +263,10 @@ If the flagd JSON schemas change:
 cd contrib/js-sdk-contrib/libs/shared/flagd-core
 npm run build:validators
 ```
+
+### Build Tooling
+
+The library is built with [tsup](https://tsup.egoist.dev/) (which uses [esbuild](https://esbuild.github.io/) under the hood), outputting both CJS and ESM formats. This aligns with the [js-sdk](https://github.com/open-feature/js-sdk) repo which uses esbuild directly. In the future, we may switch to direct esbuild + [rollup-plugin-dts](https://github.com/nicolo-ribaudo/rollup-plugin-dts) for type bundling to fully match the js-sdk pattern.
 
 ---
 

@@ -51,7 +51,7 @@ export interface EvaluationDetails {
 
 /**
  * Flag store providing flag evaluation for Cloudflare Workers.
- * 
+ *
  * Uses the forked @openfeature/flagd-core with Workers compatibility mode,
  * which uses interpreter-based JSONLogic evaluation instead of compilation
  * to avoid the `new Function()` restriction in Cloudflare Workers.
@@ -175,12 +175,9 @@ export class FlagStore {
   /**
    * Resolve a flag value with automatic type detection.
    */
-  resolveValue(
-    flagKey: string,
-    context: EvaluationContext = {},
-  ): FlagResolutionResult {
+  resolveValue(flagKey: string, context: EvaluationContext = {}): FlagResolutionResult {
     const flag = this.core.getFlag(flagKey);
-    
+
     if (!flag) {
       return {
         value: undefined,

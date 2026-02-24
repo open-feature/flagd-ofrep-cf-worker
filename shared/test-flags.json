@@ -58,11 +58,7 @@
         "false": false
       },
       "targeting": {
-        "if": [
-          { "in": ["@openfeature.dev", { "var": "email" }] },
-          "true",
-          "false"
-        ]
+        "if": [{ "in": ["@openfeature.dev", { "var": "email" }] }, "true", "false"]
       }
     },
     "targeted-string": {
@@ -114,11 +110,7 @@
         "modern": "modern-feature"
       },
       "targeting": {
-        "if": [
-          { "sem_ver": [{ "var": "appVersion" }, ">=", "2.0.0"] },
-          "modern",
-          "legacy"
-        ]
+        "if": [{ "sem_ver": [{ "var": "appVersion" }, ">=", "2.0.0"] }, "modern", "legacy"]
       }
     },
     "string-comparison-flag": {
@@ -129,11 +121,7 @@
         "beta": "beta-value"
       },
       "targeting": {
-        "if": [
-          { "ends_with": [{ "var": "email" }, "@beta.example.com"] },
-          "beta",
-          "default"
-        ]
+        "if": [{ "ends_with": [{ "var": "email" }, "@beta.example.com"] }, "beta", "default"]
       }
     },
     "complex-targeting": {
@@ -147,10 +135,7 @@
       "targeting": {
         "if": [
           {
-            "and": [
-              { "==": [{ "var": "plan" }, "premium"] },
-              { ">=": [{ "var": "accountAge" }, 30] }
-            ]
+            "and": [{ "==": [{ "var": "plan" }, "premium"] }, { ">=": [{ "var": "accountAge" }, 30] }]
           },
           "premium",
           { "in": [{ "var": "email" }, ["beta@test.com", "tester@test.com"]] },

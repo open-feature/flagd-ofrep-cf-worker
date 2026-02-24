@@ -79,14 +79,7 @@ export interface OfrepGeneralError {
 /**
  * OFREP reason codes (aligned with OpenFeature resolution reasons)
  */
-export type OfrepReason =
-  | 'STATIC'
-  | 'TARGETING_MATCH'
-  | 'SPLIT'
-  | 'DISABLED'
-  | 'UNKNOWN'
-  | 'DEFAULT'
-  | 'ERROR';
+export type OfrepReason = 'STATIC' | 'TARGETING_MATCH' | 'SPLIT' | 'DISABLED' | 'UNKNOWN' | 'DEFAULT' | 'ERROR';
 
 /**
  * OFREP error codes (aligned with OpenFeature error codes)

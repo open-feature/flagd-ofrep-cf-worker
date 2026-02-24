@@ -20,8 +20,8 @@
     "build": "tsup",
     "dev": "tsup --watch",
     "typecheck": "tsc --noEmit",
-    "lint": "eslint src --ext .ts",
-    "test": "echo 'No tests yet'"
+    "lint": "eslint src test --ext .ts",
+    "test": "jest --selectProjects=js-ofrep-worker"
   },
   "keywords": [
     "openfeature",

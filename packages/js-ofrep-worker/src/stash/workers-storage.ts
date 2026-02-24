@@ -1,28 +1,25 @@
 /**
  * Workers-compatible storage and evaluation implementation.
- * 
+ *
  * The standard flagd-core uses ajv for JSON schema validation, which uses
  * dynamic code generation (new Function()) that is not allowed in Cloudflare Workers.
- * 
+ *
  * This implementation provides flag parsing and evaluation without schema validation,
  * assuming flags are validated at build time.
- * 
+ *
  * IMPORTANT: This module deliberately avoids importing from @openfeature/flagd-core
  * main entry point to prevent ajv from being bundled.
  */
 
-import type { 
-  FlagMetadata, 
-  Logger, 
+import type {
+  FlagMetadata,
+  Logger,
   FlagValue,
   JsonValue,
   EvaluationContext,
   ResolutionDetails,
 } from '@openfeature/core';
-import { 
-  StandardResolutionReasons, 
-  ErrorCode,
-} from '@openfeature/core';
+import { StandardResolutionReasons, ErrorCode } from '@openfeature/core';
 // Use json-logic-js which is interpreter-based (no code generation)
 import jsonLogic from 'json-logic-js';
 // Import hashing for fractional evaluation
@@ -178,7 +175,7 @@ class Targeting {
         timestamp: Math.floor(Date.now() / 1000),
       },
     };
-    
+
     const result = jsonLogic.apply(this.logic, context) as T;
     this.logger.debug(`Targeting evaluation for '${flagKey}': ${JSON.stringify(result)}`);
     return result;
@@ -197,7 +194,11 @@ export class WorkersFeatureFlag {
   private readonly targeting?: Targeting;
   private readonly targetingParseError?: string;
 
-  constructor(key: string, flag: Flag, private logger: Logger) {
+  constructor(
+    key: string,
+    flag: Flag,
+    private logger: Logger,
+  ) {
     this.key = key;
     this.state = flag.state;
     this.defaultVariant = flag.defaultVariant;
@@ -235,7 +236,7 @@ export class WorkersFeatureFlag {
     } else {
       try {
         const targetingResult = this.targeting.evaluate(this.key, evalCtx);
-        
+
         if (targetingResult === null || targetingResult === undefined) {
           variant = this.defaultVariant;
           reason = StandardResolutionReasons.DEFAULT;

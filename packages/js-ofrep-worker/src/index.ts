@@ -7,11 +7,7 @@ export { FlagdCore, FeatureFlag, MemoryStorage } from '@openfeature/flagd-core';
 export type { Storage, FlagdCoreOptions } from '@openfeature/flagd-core';
 
 // Type exports
-export type {
-  FlagResolutionResult,
-  TypedResolutionResult,
-  EvaluationDetails,
-} from './flag-store';
+export type { FlagResolutionResult, TypedResolutionResult, EvaluationDetails } from './flag-store';
 
 export type {
   OfrepContext,

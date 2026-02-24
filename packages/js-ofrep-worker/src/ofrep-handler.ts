@@ -70,11 +70,7 @@ function corsHeaders(origin: string): HeadersInit {
 /**
  * Create a JSON response with optional CORS headers
  */
-function jsonResponse(
-  data: unknown,
-  status: number,
-  options: { cors?: boolean; corsOrigin?: string } = {},
-): Response {
+function jsonResponse(data: unknown, status: number, options: { cors?: boolean; corsOrigin?: string } = {}): Response {
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
   };
@@ -137,11 +133,7 @@ export class OfrepHandler {
     }
 
     // Not found
-    return jsonResponse(
-      { errorDetails: 'Not found' },
-      404,
-      { cors: this.cors, corsOrigin: this.corsOrigin },
-    );
+    return jsonResponse({ errorDetails: 'Not found' }, 404, { cors: this.cors, corsOrigin: this.corsOrigin });
   }
 
   /**
@@ -157,12 +149,9 @@ export class OfrepHandler {
   /**
    * Handle single flag evaluation: POST /ofrep/v1/evaluate/flags/{key}
    */
-  private async handleSingleEvaluation(
-    request: Request,
-    flagKey: string,
-  ): Promise<Response> {
+  private async handleSingleEvaluation(request: Request, flagKey: string): Promise<Response> {
     let body: OfrepEvaluationRequest = {};
-    
+
     try {
       const text = await request.text();
       if (text) {
@@ -228,7 +217,7 @@ export class OfrepHandler {
    */
   private async handleBulkEvaluation(request: Request): Promise<Response> {
     let body: OfrepBulkEvaluationRequest = {};
-    
+
     try {
       const text = await request.text();
       if (text) {
@@ -247,27 +236,25 @@ export class OfrepHandler {
 
     const context = toEvaluationContext(body.context);
     const evaluations = this.store.resolveAll(context);
-    
-    const flags: Array<OfrepEvaluationSuccess | OfrepEvaluationFailure> = evaluations.map(
-      (evaluation) => {
-        if (evaluation.errorCode) {
-          return {
-            key: evaluation.flagKey,
-            errorCode: toOfrepErrorCode(evaluation.errorCode),
-            errorDetails: evaluation.errorMessage,
-            metadata: evaluation.flagMetadata as Record<string, JsonValue> | undefined,
-          } as OfrepEvaluationFailure;
-        }
 
+    const flags: Array<OfrepEvaluationSuccess | OfrepEvaluationFailure> = evaluations.map((evaluation) => {
+      if (evaluation.errorCode) {
         return {
           key: evaluation.flagKey,
-          value: evaluation.value as JsonValue,
-          reason: toOfrepReason(evaluation.reason),
-          variant: evaluation.variant,
+          errorCode: toOfrepErrorCode(evaluation.errorCode),
+          errorDetails: evaluation.errorMessage,
           metadata: evaluation.flagMetadata as Record<string, JsonValue> | undefined,
-        } as OfrepEvaluationSuccess;
-      },
-    );
+        } as OfrepEvaluationFailure;
+      }
+
+      return {
+        key: evaluation.flagKey,
+        value: evaluation.value as JsonValue,
+        reason: toOfrepReason(evaluation.reason),
+        variant: evaluation.variant,
+        metadata: evaluation.flagMetadata as Record<string, JsonValue> | undefined,
+      } as OfrepEvaluationSuccess;
+    });
 
     const response: OfrepBulkEvaluationSuccess = {
       flags,
@@ -281,22 +268,20 @@ export class OfrepHandler {
 
 /**
  * Create an OFREP fetch handler for Cloudflare Workers.
- * 
+ *
  * @example
  * ```typescript
  * import { createOfrepHandler } from '@openfeature/flagd-ofrep-cf-worker';
  * import flags from './flags.json';
- * 
+ *
  * const handler = createOfrepHandler({ flags });
- * 
+ *
  * export default {
  *   fetch: handler,
  * };
  * ```
  */
-export function createOfrepHandler(
-  options: OfrepHandlerOptions,
-): (request: Request) => Promise<Response> {
+export function createOfrepHandler(options: OfrepHandlerOptions): (request: Request) => Promise<Response> {
   const handler = new OfrepHandler(options);
   return (request: Request) => handler.handleRequest(request);
 }

@@ -58,11 +58,7 @@
         "false": false
       },
       "targeting": {
-        "if": [
-          { "in": ["@openfeature.dev", { "var": "email" }] },
-          "true",
-          "false"
-        ]
+        "if": [{ "in": ["@openfeature.dev", { "var": "email" }] }, "true", "false"]
       }
     },
     "targeted-string": {
@@ -117,10 +113,7 @@
       "targeting": {
         "if": [
           {
-            "and": [
-              { "==": [{ "var": "plan" }, "premium"] },
-              { ">=": [{ "var": "accountAge" }, 30] }
-            ]
+            "and": [{ "==": [{ "var": "plan" }, "premium"] }, { ">=": [{ "var": "accountAge" }, 30] }]
           },
           "premium",
           { "in": [{ "var": "email" }, ["beta@test.com", "tester@test.com"]] },

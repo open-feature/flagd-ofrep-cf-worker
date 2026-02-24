@@ -7,6 +7,7 @@ flagd OFREP handler for Cloudflare Workers - in-process flag evaluation compatib
 This package provides a ready-to-use OFREP (OpenFeature Remote Evaluation Protocol) handler for Cloudflare Workers. It uses a [forked version of `@openfeature/flagd-core`](https://github.com/DevCycleHQ-Sandbox/js-sdk-contrib/tree/feat/workers-compatibility) with Workers compatibility mode, performing flag evaluations entirely within the worker.
 
 **Key Features:**
+
 - Full OFREP API compliance
 - Workers-compatible (no `eval` or `new Function()`)
 - Supports flagd targeting rules (JSONLogic)
@@ -27,22 +28,18 @@ import { createOfrepHandler } from '@openfeature/flagd-ofrep-cf-worker';
 // Your flag configuration (flagd format)
 const flags = {
   flags: {
-    "my-feature": {
-      state: "ENABLED",
-      defaultVariant: "off",
+    'my-feature': {
+      state: 'ENABLED',
+      defaultVariant: 'off',
       variants: {
         on: true,
-        off: false
+        off: false,
       },
       targeting: {
-        if: [
-          { "==": [{ var: "plan" }, "premium"] },
-          "on",
-          "off"
-        ]
-      }
-    }
-  }
+        if: [{ '==': [{ var: 'plan' }, 'premium'] }, 'on', 'off'],
+      },
+    },
+  },
 };
 
 // Create the handler
@@ -61,6 +58,7 @@ export default {
 Creates a fetch handler for OFREP endpoints.
 
 **Options:**
+
 - `flags` (required): Flag configuration in flagd format (string or object)
 - `basePath` (optional): Base path for OFREP endpoints. Default: `/ofrep/v1`
 - `cors` (optional): Enable CORS headers. Default: `true`
@@ -108,6 +106,7 @@ The handler exposes two OFREP endpoints:
 Evaluate a single flag.
 
 **Request:**
+
 ```json
 {
   "context": {
@@ -118,6 +117,7 @@ Evaluate a single flag.
 ```
 
 **Response (200):**
+
 ```json
 {
   "key": "my-feature",
@@ -132,6 +132,7 @@ Evaluate a single flag.
 Bulk evaluate all flags.
 
 **Request:**
+
 ```json
 {
   "context": {
@@ -141,6 +142,7 @@ Bulk evaluate all flags.
 ```
 
 **Response (200):**
+
 ```json
 {
   "flags": [
@@ -190,11 +192,7 @@ Flags use the [flagd flag definition format](https://flagd.dev/reference/flag-de
         "off": false
       },
       "targeting": {
-        "if": [
-          { "in": ["@company.com", { "var": "email" }] },
-          "on",
-          "off"
-        ]
+        "if": [{ "in": ["@company.com", { "var": "email" }] }, "on", "off"]
       }
     },
     "rollout-flag": {
