@@ -2,7 +2,7 @@
   "name": "flagd-ofrep-cf-worker",
   "version": "0.0.0",
   "private": true,
-  "description": "flagd OFREP Cloudflare Workers - JS and Rust implementations for in-process flag evaluation",
+  "description": "flagd OFREP Cloudflare Worker - JS implementation for in-process flag evaluation",
   "engines": {
     "node": ">=25.0.0"
   },
@@ -10,11 +10,8 @@
     "build": "npm run build --workspaces --if-present",
     "test": "npm run test --workspaces --if-present",
     "lint": "npm run lint --workspaces --if-present",
-    "dev:js": "npm run dev --workspace=examples/js-worker",
-    "deploy:js": "npm run deploy --workspace=examples/js-worker",
-    "deploy:rust": "cd examples/rust-worker && npx wrangler deploy",
-    "deploy:rust-forking": "cd examples/rust-worker-forking && npx wrangler deploy",
-    "deploy:all": "npm run deploy:js && npm run deploy:rust && npm run deploy:rust-forking"
+    "dev": "npm run dev --workspace=examples/js-worker",
+    "deploy": "npm run deploy --workspace=examples/js-worker"
   },
   "workspaces": [
     "packages/*",
