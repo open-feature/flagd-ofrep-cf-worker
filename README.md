@@ -52,7 +52,7 @@ flagd-ofrep-cf-worker/
 
 ## Workers Compatibility
 
-The standard `@openfeature/flagd-core` package cannot run directly in Cloudflare Workers. This project currently uses a fork with Workers compatibility patches. Work to upstream these changes is being tracked in [open-feature/js-sdk-contrib#1480](https://github.com/open-feature/js-sdk-contrib/issues/1480).
+The standard `@openfeature/flagd-core` package cannot run directly in Cloudflare Workers. This project currently uses a [fork](https://github.com/DevCycleHQ-Sandbox/js-sdk-contrib/tree/feat/workers-compatibility) (as a git submodule) with Workers compatibility patches. Work to upstream these changes is being tracked in [open-feature/js-sdk-contrib#1480](https://github.com/open-feature/js-sdk-contrib/issues/1480). Once those changes land, the submodule will be removed in favor of the published `@openfeature/flagd-core` package.
 
 ---
 
