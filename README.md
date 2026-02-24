@@ -50,61 +50,9 @@ flagd-ofrep-cf-worker/
 
 ---
 
-## The Challenge
+## Workers Compatibility
 
-The standard `@openfeature/flagd-core` package cannot run in Cloudflare Workers because it depends on libraries that use dynamic code generation:
-
-| Library | Usage | Problem |
-|---------|-------|---------|
-| `ajv` | JSON Schema validation | Uses `new Function()` to compile validators at module load time |
-| `json-logic-engine` | Targeting rule evaluation | Uses `eval()` in `.build()` compilation mode |
-
-Cloudflare Workers run in V8 isolates with strict security restrictions that block `eval()` and `new Function()`.
-
-## The Solution
-
-This repository includes a **fork of `@openfeature/flagd-core`** (as a git submodule) with an optional `workers` compatibility mode that:
-
-1. **Pre-compiled ajv validators**: Generated at build time using `ajv-standalone`, avoiding runtime code generation
-2. **Interpreter mode for JSONLogic**: Uses `.run()` instead of `.build()`, which interprets rules without code generation
-
-### Fork Details
-
-The fork is maintained at [`DevCycleHQ-Sandbox/js-sdk-contrib`](https://github.com/DevCycleHQ-Sandbox/js-sdk-contrib) on the `feat/workers-compatibility` branch.
-
-**Files modified in `libs/shared/flagd-core/`:**
-
-| File | Changes |
-|------|---------|
-| `src/lib/options.ts` | New `FlagdCoreOptions` interface with `workers?: boolean` |
-| `src/lib/targeting/targeting.ts` | Conditionally uses `.run()` interpreter when `workers: true` |
-| `src/lib/parser.ts` | Uses pre-compiled validators when `workers: true` |
-| `src/lib/feature-flag.ts` | Passes options through to Targeting |
-| `src/lib/storage.ts` | Passes options through to parser |
-| `src/lib/flagd-core.ts` | Accepts `FlagdCoreOptions` in constructor |
-| `scripts/build-validators.js` | Generates pre-compiled ajv validators |
-| `src/lib/generated/validators.js` | Auto-generated pre-compiled validators |
-
-### Direct Usage
-
-```typescript
-import { FlagdCore } from '@openfeature/flagd-core';
-
-// For Cloudflare Workers (no dynamic code generation)
-const core = new FlagdCore(undefined, undefined, { workers: true });
-
-// For Node.js (default, uses compilation for better performance)
-const core = new FlagdCore();
-```
-
-### Performance Trade-off
-
-| Mode | JSONLogic | Performance | Environment |
-|------|-----------|-------------|-------------|
-| `workers: false` (default) | Compiled (`.build()`) | ~10-20x faster | Node.js |
-| `workers: true` | Interpreted (`.run()`) | Slower but compatible | Cloudflare Workers |
-
-For typical OFREP usage (a few flag evaluations per request), the interpreter mode is fast enough. The absolute times are still in microseconds.
+The standard `@openfeature/flagd-core` package cannot run directly in Cloudflare Workers. This project currently uses a fork with Workers compatibility patches. Work to upstream these changes is being tracked in [open-feature/js-sdk-contrib#1480](https://github.com/open-feature/js-sdk-contrib/issues/1480).
 
 ---
 
