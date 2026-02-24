@@ -1,6 +1,8 @@
 # flagd OFREP Cloudflare Worker
 
-Experimental repository for running flagd in-process evaluation in Cloudflare Workers, exposing an OFREP (OpenFeature Remote Evaluation Protocol) API.
+> **Warning:** This project is under active development and is not yet ready for production use.
+
+A Cloudflare Worker for running flagd in-process evaluation, exposing an OFREP (OpenFeature Remote Evaluation Protocol) API.
 
 ## Overview
 
