@@ -14,7 +14,8 @@
     "format:fix": "prettier --write .",
     "dev": "npm run dev --workspace=examples/js-worker",
     "deploy": "npm run deploy --workspace=examples/js-worker",
-    "prepare": "husky || true"
+    "prepare": "husky || true",
+    "postinstall": "node scripts/patch-flagd-core.js"
   },
   "workspaces": [
     "packages/*",
