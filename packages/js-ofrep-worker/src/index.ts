@@ -1,6 +1,7 @@
 // Core exports
 export { FlagStore } from './flag-store';
 export { OfrepHandler, createOfrepHandler } from './ofrep-handler';
+export { extractAuthToken } from './auth';
 
 // Re-export from flagd-core for advanced usage
 export { FlagdCore, FeatureFlag, MemoryStorage } from '@openfeature/flagd-core';

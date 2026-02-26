@@ -93,7 +93,7 @@ export class OfrepHandler {
   private readonly corsOrigin: string;
 
   constructor(options: OfrepHandlerOptions) {
-    this.store = new FlagStore(options.flags);
+    this.store = new FlagStore(options.flagsStatic);
     this.basePath = options.basePath || '/ofrep/v1';
     this.cors = options.cors !== false;
     this.corsOrigin = options.corsOrigin || '*';
@@ -274,7 +274,7 @@ export class OfrepHandler {
  * import { createOfrepHandler } from '@openfeature/flagd-ofrep-cf-worker';
  * import flags from './flags.json';
  *
- * const handler = createOfrepHandler({ flags });
+ * const handler = createOfrepHandler({ flagsStatic: flags });
  *
  * export default {
  *   fetch: handler,

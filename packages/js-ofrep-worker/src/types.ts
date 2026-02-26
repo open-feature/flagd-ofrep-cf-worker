@@ -97,10 +97,11 @@ export type OfrepErrorCode =
  */
 export interface OfrepHandlerOptions {
   /**
-   * Flag configuration JSON string or object.
-   * This is the flagd flag definition format.
+   * Static flag configuration JSON string or object.
+   * Bundled at build time using the flagd flag definition format.
+   * When using static flags, the handler creates a single shared FlagStore.
    */
-  flags: string | object;
+  flagsStatic: string | object;
 
   /**
    * Base path for OFREP endpoints.
