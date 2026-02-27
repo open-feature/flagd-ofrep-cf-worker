@@ -164,7 +164,8 @@ export default {
       let config: object | null;
       try {
         config = await loadConfigFromR2(env.FLAGS_BUCKET, token, ctx);
-      } catch {
+      } catch (error) {
+        console.error('Failed to load config from R2', error);
         return Response.json({ errorDetails: 'Internal server error' }, { status: 500 });
       }
 
