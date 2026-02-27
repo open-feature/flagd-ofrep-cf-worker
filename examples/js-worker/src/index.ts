@@ -123,7 +123,7 @@ async function fetchFromR2AndCache(
 // ---------------------------------------------------------------------------
 
 // Static handler — created once at module scope, reused across requests
-const staticHandler = new OfrepHandler({ flagsStatic: staticFlags });
+const staticHandler = new OfrepHandler({ staticFlags });
 
 export default {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
@@ -173,7 +173,7 @@ export default {
       }
 
       // Create per-request handler with the loaded config
-      const handler = new OfrepHandler({ flagsStatic: config });
+      const handler = new OfrepHandler({ staticFlags: config });
       return handler.handleRequest(request);
     }
 

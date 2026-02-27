@@ -42,7 +42,7 @@ Client Request
 │         ├── exists → cache async via ctx.waitUntil(), use it │
 │         ├── null → 404 (config not provisioned)              │
 │         └── error → retry once, then 500                     │
-│  4. OfrepHandler({ flagsStatic: config })                    │
+│  4. OfrepHandler({ staticFlags: config })                    │
 │  5. Evaluate flags, return OFREP response                    │
 └──────────────────────────────────────────────────────────────┘
 
@@ -89,11 +89,11 @@ valid but the config hasn't been provisioned yet.
 
 ### Library (`packages/js-ofrep-worker/`)
 
-#### `src/types.ts` — Rename `flags` → `flagsStatic`
+#### `src/types.ts` — Rename `flags` → `staticFlags`
 
 ```typescript
 export interface OfrepHandlerOptions {
-  flagsStatic: string | object;  // renamed from flags
+  staticFlags: string | object;  // renamed from flags
   basePath?: string;
   cors?: boolean;
   corsOrigin?: string;
@@ -112,7 +112,7 @@ export function extractAuthToken(request: Request): string | null;
 
 #### `src/ofrep-handler.ts` — Updated
 
-- Constructor uses `options.flagsStatic`
+- Constructor uses `options.staticFlags`
 - JSDoc example updated
 
 #### `src/flag-store.ts` — Updated
@@ -177,7 +177,7 @@ workspace needs them for tsup bundling and declaration generation.
 import { OfrepHandler } from '@openfeature/flagd-ofrep-cf-worker';
 import flags from './flags.json';
 
-const handler = new OfrepHandler({ flagsStatic: flags });
+const handler = new OfrepHandler({ staticFlags: flags });
 ```
 
 ### R2 mode

@@ -17,7 +17,7 @@ describe('OfrepHandler', () => {
   let handler: OfrepHandler;
 
   beforeEach(() => {
-    handler = new OfrepHandler({ flags: testFlags });
+    handler = new OfrepHandler({ staticFlags: testFlags });
   });
 
   describe('routing', () => {
@@ -51,7 +51,7 @@ describe('OfrepHandler', () => {
 
     it('should use custom CORS origin', async () => {
       const customHandler = new OfrepHandler({
-        flags: testFlags,
+        staticFlags: testFlags,
         corsOrigin: 'https://example.com',
       });
       const request = postJson('/ofrep/v1/evaluate/flags/simple-boolean', {});
@@ -61,7 +61,7 @@ describe('OfrepHandler', () => {
 
     it('should omit CORS headers when cors is disabled', async () => {
       const noCorsHandler = new OfrepHandler({
-        flags: testFlags,
+        staticFlags: testFlags,
         cors: false,
       });
       const request = postJson('/ofrep/v1/evaluate/flags/simple-boolean', {});
@@ -187,7 +187,7 @@ describe('OfrepHandler', () => {
   describe('custom basePath', () => {
     it('should use custom base path', async () => {
       const customHandler = new OfrepHandler({
-        flags: testFlags,
+        staticFlags: testFlags,
         basePath: '/api/v2',
       });
 
@@ -198,7 +198,7 @@ describe('OfrepHandler', () => {
 
     it('should 404 on default path when custom path is set', async () => {
       const customHandler = new OfrepHandler({
-        flags: testFlags,
+        staticFlags: testFlags,
         basePath: '/api/v2',
       });
 
@@ -231,7 +231,7 @@ describe('OfrepHandler', () => {
 
   describe('createOfrepHandler', () => {
     it('should create a fetch handler function', async () => {
-      const fetchHandler = createOfrepHandler({ flags: testFlags });
+      const fetchHandler = createOfrepHandler({ staticFlags: testFlags });
       expect(typeof fetchHandler).toBe('function');
 
       const request = postJson('/ofrep/v1/evaluate/flags/simple-boolean', {});

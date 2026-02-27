@@ -43,7 +43,7 @@ const flags = {
 };
 
 // Create the handler
-const handler = createOfrepHandler({ flags });
+const handler = createOfrepHandler({ staticFlags: flags });
 
 // Export for Cloudflare Workers
 export default {
@@ -59,7 +59,7 @@ Creates a fetch handler for OFREP endpoints.
 
 **Options:**
 
-- `flags` (required): Flag configuration in flagd format (string or object)
+- `staticFlags` (required): Flag configuration in flagd format (string or object)
 - `basePath` (optional): Base path for OFREP endpoints. Default: `/ofrep/v1`
 - `cors` (optional): Enable CORS headers. Default: `true`
 - `corsOrigin` (optional): CORS origin. Default: `*`
@@ -88,7 +88,7 @@ Class-based API for more control over the handler.
 ```typescript
 import { OfrepHandler } from '@openfeature/flagd-ofrep-cf-worker';
 
-const handler = new OfrepHandler({ flags });
+const handler = new OfrepHandler({ staticFlags: flags });
 
 // Update flags at runtime
 handler.setFlags(newFlags);

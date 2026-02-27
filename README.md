@@ -75,7 +75,7 @@ npm run dev
 import { createOfrepHandler } from '@openfeature/flagd-ofrep-cf-worker';
 import flags from './flags.json';
 
-const handler = createOfrepHandler({ flags });
+const handler = createOfrepHandler({ staticFlags: flags });
 
 export default {
   fetch: handler,

@@ -13,9 +13,12 @@
 export function extractAuthToken(request: Request): string | null {
   const authHeader = request.headers.get('Authorization');
   if (authHeader) {
-    const token = authHeader.replace(/^Bearer\s+/i, '').trim();
-    if (token) {
-      return token;
+    const bearerMatch = authHeader.match(/^Bearer\s+(.+)$/i);
+    if (bearerMatch) {
+      const token = bearerMatch[1].trim();
+      if (token) {
+        return token;
+      }
     }
   }
 
