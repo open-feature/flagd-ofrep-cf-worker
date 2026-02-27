@@ -52,7 +52,7 @@ export interface EvaluationDetails {
 /**
  * Flag store providing flag evaluation for Cloudflare Workers.
  *
- * Uses the forked @openfeature/flagd-core with Workers compatibility mode,
+ * Uses @openfeature/flagd-core with disableDynamicCodeGeneration: true,
  * which uses interpreter-based JSONLogic evaluation instead of compilation
  * to avoid the `new Function()` restriction in Cloudflare Workers.
  */
@@ -61,8 +61,7 @@ export class FlagStore {
   private flagSetMetadata: FlagMetadata = {};
 
   constructor(flags: string | object, logger: Logger = defaultLogger) {
-    // Initialize FlagdCore with workers: true for interpreter mode
-    this.core = new FlagdCore(undefined, logger, { workers: true });
+    this.core = new FlagdCore(undefined, logger, { disableDynamicCodeGeneration: true });
     this.setFlags(flags);
   }
 
