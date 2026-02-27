@@ -52,7 +52,7 @@ flagd-ofrep-cf-worker/
 
 ## Workers Compatibility
 
-The standard `@openfeature/flagd-core` package cannot run directly in Cloudflare Workers. This project currently uses a [fork](https://github.com/DevCycleHQ-Sandbox/js-sdk-contrib/tree/feat/workers-compatibility) (as a git submodule) with Workers compatibility patches. Work to upstream these changes is being tracked in [open-feature/js-sdk-contrib#1480](https://github.com/open-feature/js-sdk-contrib/issues/1480). Once those changes land, the submodule will be removed in favor of the published `@openfeature/flagd-core` package.
+The standard `@openfeature/flagd-core` package cannot run directly in Cloudflare Workers. This project currently uses a [fork](https://github.com/open-feature/js-sdk-contrib/tree/feat/workers-compat-targeting) (as a git submodule) with Workers compatibility patches. Work to upstream these changes is being tracked in [open-feature/js-sdk-contrib#1480](https://github.com/open-feature/js-sdk-contrib/issues/1480). Once those changes land, the submodule will be removed in favor of the published `@openfeature/flagd-core` package.
 
 ---
 
@@ -252,7 +252,7 @@ npm run deploy
 
 ```bash
 cd contrib/js-sdk-contrib
-git pull origin feat/workers-compatibility
+git pull origin feat/workers-compat-targeting
 ```
 
 ### Regenerate Pre-compiled Validators
@@ -281,7 +281,7 @@ The library is built with [tsup](https://tsup.egoist.dev/) (which uses [esbuild]
 
 This fork adds Workers compatibility features that aren't yet upstream:
 
-- [DevCycleHQ-Sandbox/js-sdk-contrib](https://github.com/DevCycleHQ-Sandbox/js-sdk-contrib) - `feat/workers-compatibility` branch
+- [open-feature/js-sdk-contrib](https://github.com/open-feature/js-sdk-contrib) - `feat/workers-compat-targeting` branch
 
 ## License
 

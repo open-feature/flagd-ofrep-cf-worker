@@ -192,7 +192,7 @@ const handler = new OfrepHandler({ staticFlags: flags });
 
 ```typescript
 // Hash the token for security
-function resolveR2Key(token: string): string {
+async function resolveR2Key(token: string): Promise<string> {
   const hash = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(token));
   const hex = [...new Uint8Array(hash)].map(b => b.toString(16).padStart(2, '0')).join('');
   return `flags/${hex}/flags.json`;
