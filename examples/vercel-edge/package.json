@@ -1,0 +1,19 @@
+{
+  "name": "vercelEdgeExample",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Example Vercel Edge Functions app using @openfeature/flagd-ofrep-cf-worker",
+  "scripts": {
+    "predev": "npm run build --workspace=@openfeature/flagd-ofrep-cf-worker",
+    "dev": "vercel dev --listen 8788",
+    "deploy": "vercel deploy",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@openfeature/flagd-ofrep-cf-worker": "*"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.0",
+    "vercel": "^49.0.0"
+  }
+}

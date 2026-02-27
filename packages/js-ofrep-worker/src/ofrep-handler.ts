@@ -83,7 +83,7 @@ function jsonResponse(data: unknown, status: number, options: { cors?: boolean; 
 }
 
 /**
- * OFREP request handler for Cloudflare Workers.
+ * OFREP request handler for Fetch-compatible edge runtimes.
  * Handles OFREP API endpoints for flag evaluation.
  */
 export class OfrepHandler {
@@ -267,7 +267,7 @@ export class OfrepHandler {
 }
 
 /**
- * Create an OFREP fetch handler for Cloudflare Workers.
+ * Create an OFREP fetch handler for Fetch-compatible edge runtimes.
  *
  * @example
  * ```typescript
@@ -279,6 +279,9 @@ export class OfrepHandler {
  * export default {
  *   fetch: handler,
  * };
+ *
+ * // For runtimes that accept a direct handler export:
+ * // export default handler;
  * ```
  */
 export function createOfrepHandler(options: OfrepHandlerOptions): (request: Request) => Promise<Response> {

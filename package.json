@@ -2,7 +2,7 @@
   "name": "flagd-ofrep-cf-worker",
   "version": "0.0.0",
   "private": true,
-  "description": "flagd OFREP Cloudflare Worker - JS implementation for in-process flag evaluation",
+  "description": "flagd OFREP edge runtime package and examples for in-process flag evaluation",
   "engines": {
     "node": ">=24.0.0"
   },
@@ -13,7 +13,18 @@
     "format": "prettier --check .",
     "format:fix": "prettier --write .",
     "dev": "npm run dev --workspace=examples/js-worker",
+    "dev:cloudflare": "npm run dev --workspace=examples/js-worker",
+    "dev:vercel": "npm run dev --workspace=examples/vercel-edge",
+    "dev:fastly": "npm run dev --workspace=examples/fastly-compute",
+    "dev:deno": "npm run dev --workspace=examples/deno-deploy",
     "deploy": "npm run deploy --workspace=examples/js-worker",
+    "deploy:cloudflare": "npm run deploy --workspace=examples/js-worker",
+    "deploy:vercel": "npm run deploy --workspace=examples/vercel-edge",
+    "deploy:fastly": "npm run deploy --workspace=examples/fastly-compute",
+    "smoke:cloudflare": "OFREP_BASE_URL=http://localhost:8787 node scripts/smokeOfrep.mjs",
+    "smoke:vercel": "OFREP_BASE_URL=http://localhost:8788 node scripts/smokeOfrep.mjs",
+    "smoke:fastly": "OFREP_BASE_URL=http://127.0.0.1:7676 node scripts/smokeOfrep.mjs",
+    "smoke:deno": "OFREP_BASE_URL=http://localhost:8790 node scripts/smokeOfrep.mjs",
     "prepare": "husky || true"
   },
   "workspaces": [
@@ -25,8 +36,8 @@
     "openfeature",
     "flagd",
     "ofrep",
-    "cloudflare",
-    "workers",
+    "edge-runtime",
+    "fetch-api",
     "feature-flags"
   ],
   "author": "OpenFeature",

@@ -1,15 +1,15 @@
 # @openfeature/flagd-ofrep-cf-worker
 
-flagd OFREP handler for Cloudflare Workers - in-process flag evaluation compatible with the flagd flag format.
+flagd OFREP handler for Fetch-compatible edge runtimes with in-process flag evaluation.
 
 ## Overview
 
-This package provides a ready-to-use OFREP (OpenFeature Remote Evaluation Protocol) handler for Cloudflare Workers. It uses a [forked version of `@openfeature/flagd-core`](https://github.com/DevCycleHQ-Sandbox/js-sdk-contrib/tree/feat/workers-compatibility) with Workers compatibility mode, performing flag evaluations entirely within the worker.
+This package provides a ready-to-use OFREP (OpenFeature Remote Evaluation Protocol) handler for Fetch-compatible runtimes. It uses a [forked version of `@openfeature/flagd-core`](https://github.com/DevCycleHQ-Sandbox/js-sdk-contrib/tree/feat/workers-compatibility) with workers compatibility mode, performing flag evaluations entirely in-process at the edge.
 
 **Key Features:**
 
 - Full OFREP API compliance
-- Workers-compatible (no `eval` or `new Function()`)
+- Isolate-compatible (no `eval` or `new Function()`)
 - Supports flagd targeting rules (JSONLogic)
 - Fractional evaluation (percentage rollouts)
 - Custom operators: `starts_with`, `ends_with`, `sem_ver`, `fractional`
@@ -45,11 +45,18 @@ const flags = {
 // Create the handler
 const handler = createOfrepHandler({ flags });
 
-// Export for Cloudflare Workers
+// Cloudflare Workers
 export default {
   fetch: handler,
 };
+
+// Vercel Edge, Deno Deploy, or standard Fetch handlers
+// export default handler;
 ```
+
+## Runtime Compatibility
+
+This package uses standard Fetch APIs (`Request`, `Response`, `URL`, and `Headers`) and works in runtimes that expose those APIs. Runtime-specific setup and entrypoint wiring are shown in the [examples](../../examples).
 
 ## API
 
@@ -158,12 +165,12 @@ Bulk evaluate all flags.
 
 ## How It Works
 
-This package wraps `@openfeature/flagd-core` with Workers compatibility mode enabled (`{ workers: true }`). This mode:
+This package wraps `@openfeature/flagd-core` with workers compatibility mode enabled (`{ workers: true }`). This mode:
 
 1. **Uses pre-compiled JSON Schema validators** instead of runtime `ajv.compile()`, avoiding `new Function()`
 2. **Uses JSONLogic interpreter mode** (`.run()`) instead of compilation (`.build()`), avoiding `new Function()`
 
-This makes the package fully compatible with Cloudflare Workers' V8 isolate security restrictions.
+This makes the package compatible with restricted edge runtime environments that block dynamic code generation.
 
 ## Flag Configuration
 

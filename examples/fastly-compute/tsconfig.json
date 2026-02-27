@@ -5,8 +5,13 @@
     "paths": {
       "@openfeature/flagd-ofrep-cf-worker": ["../../packages/js-ofrep-worker/src/index.ts"]
     },
-    "types": ["@cloudflare/workers-types", "node"],
-    "noEmit": true
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "customConditions": ["fastly"],
+    "noEmit": true,
+    "types": ["@fastly/js-compute", "node"]
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules"]

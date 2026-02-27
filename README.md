@@ -1,16 +1,23 @@
-# flagd OFREP Cloudflare Worker
+# flagd OFREP Edge Runtime Handler
 
 > **Warning:** This project is under active development and is not yet ready for production use.
 
-A Cloudflare Worker for running flagd in-process evaluation, exposing an OFREP (OpenFeature Remote Evaluation Protocol) API.
+An edge-runtime package for running flagd in-process evaluation and exposing an OFREP (OpenFeature Remote Evaluation Protocol) API.
 
 ## Overview
 
-This project enables feature flag evaluation entirely within Cloudflare Workers using the flagd evaluation engine. It uses a Workers-compatible fork of `@openfeature/flagd-core` and exposes the [OFREP API](https://github.com/open-feature/protocol), allowing clients to evaluate flags via HTTP.
+This project enables feature flag evaluation inside Fetch-compatible runtimes using the flagd evaluation engine. It uses a workers-compatible fork of `@openfeature/flagd-core` and exposes the [OFREP API](https://github.com/open-feature/protocol), allowing clients to evaluate flags via HTTP.
+
+## Supported runtimes
+
+- Cloudflare Workers
+- Vercel Edge Functions
+- Fastly Compute
+- Deno Deploy
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                     Cloudflare Worker                           │
+│                       Edge Runtime                              │
 │  ┌───────────────────────────────────────────────────────────┐  │
 │  │                    OFREP Handler                          │  │
 │  │  POST /ofrep/v1/evaluate/flags/{key}  → Single eval       │  │
@@ -41,7 +48,10 @@ flagd-ofrep-cf-worker/
 ├── packages/
 │   └── js-ofrep-worker/           # Reusable JS package (@openfeature/flagd-ofrep-cf-worker)
 ├── examples/
-│   └── js-worker/                 # Cloudflare Worker example
+│   ├── js-worker/                 # Cloudflare Workers example
+│   ├── vercel-edge/               # Vercel Edge Functions example
+│   ├── fastly-compute/            # Fastly Compute example
+│   └── deno-deploy/               # Deno Deploy example
 ├── contrib/
 │   └── js-sdk-contrib/            # Git submodule: forked JS flagd-core
 └── shared/
@@ -50,9 +60,9 @@ flagd-ofrep-cf-worker/
 
 ---
 
-## Workers Compatibility
+## Runtime compatibility
 
-The standard `@openfeature/flagd-core` package cannot run directly in Cloudflare Workers. This project currently uses a [fork](https://github.com/DevCycleHQ-Sandbox/js-sdk-contrib/tree/feat/workers-compatibility) (as a git submodule) with Workers compatibility patches. Work to upstream these changes is being tracked in [open-feature/js-sdk-contrib#1480](https://github.com/open-feature/js-sdk-contrib/issues/1480). Once those changes land, the submodule will be removed in favor of the published `@openfeature/flagd-core` package.
+Some edge runtimes do not allow dynamic code generation (`new Function`). This project currently uses a [fork](https://github.com/DevCycleHQ-Sandbox/js-sdk-contrib/tree/feat/workers-compatibility) (as a git submodule) with compatibility patches. Work to upstream these changes is tracked in [open-feature/js-sdk-contrib#1480](https://github.com/open-feature/js-sdk-contrib/issues/1480). Once those changes land, the submodule will be removed in favor of the published `@openfeature/flagd-core` package.
 
 ---
 
@@ -65,8 +75,35 @@ npm install
 # Build packages
 npm run build
 
-# Run the worker locally
+# Run the default Cloudflare example locally
 npm run dev
+```
+
+### Runtime example commands
+
+```bash
+# Cloudflare Workers
+npm run dev:cloudflare
+
+# Vercel Edge Functions
+npm run dev:vercel
+
+# Fastly Compute
+npm run dev:fastly
+
+# Deno Deploy-compatible runtime
+npm run dev:deno
+```
+
+### Smoke checks
+
+Run smoke checks against whichever runtime is currently running:
+
+```bash
+npm run smoke:cloudflare
+npm run smoke:vercel
+npm run smoke:fastly
+npm run smoke:deno
 ```
 
 ## Package Usage
@@ -80,9 +117,13 @@ const handler = createOfrepHandler({ flags });
 export default {
   fetch: handler,
 };
+
+// For runtimes with direct handler exports:
+// export default handler;
 ```
 
 See [packages/js-ofrep-worker/README.md](packages/js-ofrep-worker/README.md) for full documentation.
+See [examples/README.md](examples/README.md) for runtime-specific example details.
 
 ---
 
@@ -196,8 +237,9 @@ Flags use the [flagd flag definition format](https://flagd.dev/reference/flag-de
 
 ## Roadmap / Future Enhancements
 
-- [x] **JavaScript Worker**: Workers-compatible flagd-core fork
+- [x] **JavaScript package**: Workers-compatible flagd-core fork
 - [ ] **Upstream PRs**: Contribute Workers compatibility back to upstream repos
+- [ ] **Multi-runtime examples**: Vercel Edge, Fastly Compute, Deno Deploy
 - [ ] **Cloudflare KV**: Load flag configurations from KV at runtime
 - [ ] **Durable Objects**: Real-time flag updates with WebSocket sync
 - [ ] **External Sync**: Fetch flags from external HTTP endpoint
@@ -276,6 +318,11 @@ The library is built with [tsup](https://tsup.egoist.dev/) (which uses [esbuild]
 - [OpenFeature](https://openfeature.dev/) - Open standard for feature flags
 - [OFREP Specification](https://github.com/open-feature/protocol) - OpenFeature Remote Evaluation Protocol
 - [js-sdk-contrib](https://github.com/open-feature/js-sdk-contrib) - OpenFeature JavaScript SDK contributions
+
+## Package naming
+
+The published package name remains `@openfeature/flagd-ofrep-cf-worker` for compatibility with existing users.
+A neutral rename or alias can be handled in a separate follow-up release.
 
 ### Fork Used
 

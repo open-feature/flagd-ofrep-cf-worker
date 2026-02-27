@@ -50,18 +50,18 @@ export interface EvaluationDetails {
 }
 
 /**
- * Flag store providing flag evaluation for Cloudflare Workers.
+ * Flag store providing in-process flag evaluation for edge runtimes.
  *
- * Uses @openfeature/flagd-core with disableDynamicCodeGeneration: true,
- * which uses interpreter-based JSONLogic evaluation instead of compilation
- * to avoid the `new Function()` restriction in Cloudflare Workers.
+ * Uses @openfeature/flagd-core workers compatibility mode, which uses
+ * interpreter-based JSONLogic evaluation instead of compilation to avoid
+ * dynamic code generation in restricted runtimes.
  */
 export class FlagStore {
   private readonly core: FlagdCore;
   private flagSetMetadata: FlagMetadata = {};
 
   constructor(flags: string | object, logger: Logger = defaultLogger) {
-    this.core = new FlagdCore(undefined, logger, { disableDynamicCodeGeneration: true });
+    this.core = new FlagdCore(undefined, logger, { workers: true });
     this.setFlags(flags);
   }
 

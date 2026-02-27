@@ -1,0 +1,126 @@
+{
+  "$schema": "https://flagd.dev/schema/v0/flags.json",
+  "metadata": {
+    "flagSetId": "fastly-compute-example",
+    "version": "1.0.0"
+  },
+  "flags": {
+    "simple-boolean": {
+      "state": "ENABLED",
+      "defaultVariant": "off",
+      "variants": {
+        "on": true,
+        "off": false
+      }
+    },
+    "simple-string": {
+      "state": "ENABLED",
+      "defaultVariant": "default",
+      "variants": {
+        "default": "default-value",
+        "custom": "custom-value"
+      }
+    },
+    "simple-number": {
+      "state": "ENABLED",
+      "defaultVariant": "zero",
+      "variants": {
+        "zero": 0,
+        "one": 1,
+        "pi": 3.14159
+      }
+    },
+    "simple-object": {
+      "state": "ENABLED",
+      "defaultVariant": "empty",
+      "variants": {
+        "empty": {},
+        "config": {
+          "theme": "dark",
+          "fontSize": 14,
+          "features": ["search", "export"]
+        }
+      }
+    },
+    "disabled-flag": {
+      "state": "DISABLED",
+      "defaultVariant": "on",
+      "variants": {
+        "on": true,
+        "off": false
+      }
+    },
+    "targeted-boolean": {
+      "state": "ENABLED",
+      "defaultVariant": "false",
+      "variants": {
+        "true": true,
+        "false": false
+      },
+      "targeting": {
+        "if": [{ "in": ["@openfeature.dev", { "var": "email" }] }, "true", "false"]
+      }
+    },
+    "targeted-string": {
+      "state": "ENABLED",
+      "defaultVariant": "guest",
+      "variants": {
+        "guest": "Welcome, guest!",
+        "member": "Welcome back, member!",
+        "admin": "Hello, administrator!"
+      },
+      "targeting": {
+        "if": [
+          { "==": [{ "var": "role" }, "admin"] },
+          "admin",
+          { "==": [{ "var": "role" }, "member"] },
+          "member",
+          "guest"
+        ]
+      },
+      "metadata": {
+        "owner": "platform-team"
+      }
+    },
+    "fractional-rollout": {
+      "state": "ENABLED",
+      "defaultVariant": "control",
+      "variants": {
+        "control": "control",
+        "treatment-a": "treatment-a",
+        "treatment-b": "treatment-b"
+      },
+      "targeting": {
+        "fractional": [
+          { "cat": [{ "var": "$flagd.flagKey" }, { "var": "targetingKey" }] },
+          ["control", 50],
+          ["treatment-a", 25],
+          ["treatment-b", 25]
+        ]
+      },
+      "metadata": {
+        "experiment": "homepage-redesign"
+      }
+    },
+    "complex-targeting": {
+      "state": "ENABLED",
+      "defaultVariant": "fallback",
+      "variants": {
+        "fallback": { "message": "Default experience", "features": [] },
+        "premium": { "message": "Premium experience", "features": ["advanced-search", "export", "analytics"] },
+        "beta": { "message": "Beta experience", "features": ["experimental-ui"] }
+      },
+      "targeting": {
+        "if": [
+          {
+            "and": [{ "==": [{ "var": "plan" }, "premium"] }, { ">=": [{ "var": "accountAge" }, 30] }]
+          },
+          "premium",
+          { "in": [{ "var": "email" }, ["beta@test.com", "tester@test.com"]] },
+          "beta",
+          "fallback"
+        ]
+      }
+    }
+  }
+}

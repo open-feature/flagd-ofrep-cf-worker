@@ -1,7 +1,7 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "types": ["jest", "node", "@cloudflare/workers-types"],
+    "types": ["jest", "node"],
     "noUnusedLocals": false,
     "noUnusedParameters": false
   },

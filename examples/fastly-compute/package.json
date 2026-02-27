@@ -1,0 +1,20 @@
+{
+  "name": "fastlyComputeExample",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Example Fastly Compute app using @openfeature/flagd-ofrep-cf-worker",
+  "scripts": {
+    "predev": "npm run build --workspace=@openfeature/flagd-ofrep-cf-worker",
+    "build": "js-compute-runtime src/index.ts bin/main.wasm",
+    "dev": "npm run build && fastly compute serve --addr 127.0.0.1:7676",
+    "deploy": "npm run build && fastly compute deploy",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@fastly/js-compute": "^3.40.1",
+    "@openfeature/flagd-ofrep-cf-worker": "*"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.0"
+  }
+}

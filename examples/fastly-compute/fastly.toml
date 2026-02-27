@@ -1,0 +1,5 @@
+name = "flagd-ofrep-fastly-compute"
+description = "flagd OFREP Fastly Compute example"
+authors = ["OpenFeature"]
+language = "javascript"
+manifest_version = 3

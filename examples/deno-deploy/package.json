@@ -1,0 +1,11 @@
+{
+  "name": "denoDeployExample",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Example Deno Deploy app using @openfeature/flagd-ofrep-cf-worker",
+  "scripts": {
+    "predev": "npm run build --workspace=@openfeature/flagd-ofrep-cf-worker",
+    "dev": "deno task dev",
+    "typecheck": "deno task check"
+  }
+}
