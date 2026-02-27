@@ -2,8 +2,11 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "outDir": "dist",
-    "rootDir": "src",
-    "types": ["@cloudflare/workers-types", "node"]
+    "types": ["@cloudflare/workers-types", "node"],
+    "baseUrl": ".",
+    "paths": {
+      "@openfeature/flagd-core": ["../../contrib/js-sdk-contrib/libs/shared/flagd-core/src/index.ts"]
+    }
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist", "src/stash"]
