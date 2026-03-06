@@ -24,7 +24,10 @@ export function extractAuthToken(request: Request): string | null {
 
   const apiKey = request.headers.get('X-API-Key');
   if (apiKey) {
-    return apiKey.trim();
+    const token = apiKey.trim();
+    if (token) {
+      return token;
+    }
   }
 
   return null;
