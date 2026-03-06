@@ -37,10 +37,10 @@ function makeRequest(headers: HeadersInit = {}): Request {
   });
 }
 
-function makeEnv(bucket?: R2Bucket): { FLAG_SOURCE: 'r2'; FLAGS_BUCKET?: R2Bucket } {
+function makeEnv(bucket?: R2Bucket): { FLAG_SOURCE: 'r2'; FLAGS_R2_BUCKET?: R2Bucket } {
   return {
     FLAG_SOURCE: 'r2',
-    FLAGS_BUCKET: bucket,
+    FLAGS_R2_BUCKET: bucket,
   };
 }
 

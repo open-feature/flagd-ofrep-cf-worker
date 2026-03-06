@@ -13,7 +13,7 @@ port = 8787
 #   wrangler r2 object put ofrep-flags/flags/<token>/flags.json --file=flags.json
 #
 # [[r2_buckets]]
-# binding = "FLAGS_BUCKET"
+# binding = "FLAGS_R2_BUCKET"
 # bucket_name = "ofrep-flags"
 
 # [vars]

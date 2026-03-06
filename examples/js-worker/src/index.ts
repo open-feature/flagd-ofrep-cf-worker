@@ -12,9 +12,9 @@ interface Env {
   // R2 bucket containing per-token flag configurations.
   // Bind in wrangler.toml:
   //   [[r2_buckets]]
-  //   binding = "FLAGS_BUCKET"
+  //   binding = "FLAGS_R2_BUCKET"
   //   bucket_name = "ofrep-flags"
-  FLAGS_BUCKET?: R2Bucket;
+  FLAGS_R2_BUCKET?: R2Bucket;
 
   // Set to "r2" to enable R2-backed per-token flag loading.
   // When unset or any other value, uses static bundled flags.
@@ -179,7 +179,7 @@ app.all('/ofrep/*', async (c) => {
     return staticHandler.handleRequest(request);
   }
 
-  if (!env.FLAGS_BUCKET) {
+  if (!env.FLAGS_R2_BUCKET) {
     return c.json({ errorDetails: 'R2 bucket not configured' }, 500);
   }
 
@@ -190,7 +190,7 @@ app.all('/ofrep/*', async (c) => {
 
   let config: object | null;
   try {
-    config = await loadConfigFromR2(env.FLAGS_BUCKET, token, ctx);
+    config = await loadConfigFromR2(env.FLAGS_R2_BUCKET, token, ctx);
   } catch (error) {
     console.error('Failed to load config from R2', error);
     return c.json({ errorDetails: 'Internal server error' }, 500);
