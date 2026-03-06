@@ -19,14 +19,14 @@ function installMockCache(): MockCache {
   return cache;
 }
 
-function makeExecutionContext(): ExecutionContext {
+function makeWorkerExecutionContext(): ExecutionContext {
   return {
     waitUntil: jest.fn(),
     passThroughOnException: jest.fn(),
   } as unknown as ExecutionContext;
 }
 
-function makeRequest(headers: HeadersInit = {}): Request {
+function makeOfrepRequest(headers: HeadersInit = {}): Request {
   return new Request('http://localhost/ofrep/v1/evaluate/flags/simple-boolean', {
     method: 'POST',
     headers: {
@@ -37,14 +37,14 @@ function makeRequest(headers: HeadersInit = {}): Request {
   });
 }
 
-function makeEnv(bucket?: R2Bucket): { FLAG_SOURCE: 'r2'; FLAGS_R2_BUCKET?: R2Bucket } {
+function makeR2Env(bucket?: R2Bucket): { FLAG_SOURCE: 'r2'; FLAGS_R2_BUCKET?: R2Bucket } {
   return {
     FLAG_SOURCE: 'r2',
     FLAGS_R2_BUCKET: bucket,
   };
 }
 
-describe('example worker R2 mode', () => {
+describe('R2-backed OFREP path', () => {
   let cache: MockCache;
 
   beforeEach(() => {
@@ -56,10 +56,10 @@ describe('example worker R2 mode', () => {
   });
 
   it('handles OFREP preflight requests before auth or R2 access', async () => {
-    const ctx = makeExecutionContext();
+    const ctx = makeWorkerExecutionContext();
     const response = await worker.fetch(
       new Request('http://localhost/ofrep/v1/evaluate/flags/simple-boolean', { method: 'OPTIONS' }),
-      makeEnv(),
+      makeR2Env(),
       ctx,
     );
 
@@ -73,7 +73,7 @@ describe('example worker R2 mode', () => {
       get: jest.fn(),
     } as unknown as R2Bucket;
 
-    const response = await worker.fetch(makeRequest(), makeEnv(bucket), makeExecutionContext());
+    const response = await worker.fetch(makeOfrepRequest(), makeR2Env(bucket), makeWorkerExecutionContext());
 
     expect(response.status).toBe(401);
     expect(response.headers.get('Access-Control-Allow-Origin')).toBe('*');
@@ -86,9 +86,9 @@ describe('example worker R2 mode', () => {
     } as unknown as R2Bucket;
 
     const response = await worker.fetch(
-      makeRequest({ Authorization: 'Bearer token-123' }),
-      makeEnv(bucket),
-      makeExecutionContext(),
+      makeOfrepRequest({ Authorization: 'Bearer token-123' }),
+      makeR2Env(bucket),
+      makeWorkerExecutionContext(),
     );
 
     expect(response.status).toBe(404);
@@ -104,9 +104,9 @@ describe('example worker R2 mode', () => {
     } as unknown as R2Bucket;
 
     const response = await worker.fetch(
-      makeRequest({ Authorization: 'Bearer token-123' }),
-      makeEnv(bucket),
-      makeExecutionContext(),
+      makeOfrepRequest({ Authorization: 'Bearer token-123' }),
+      makeR2Env(bucket),
+      makeWorkerExecutionContext(),
     );
 
     expect(response.status).toBe(500);
