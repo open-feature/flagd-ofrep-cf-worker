@@ -12,6 +12,7 @@ const config: Config = {
         '^.+\\.[tj]s$': ['ts-jest', { tsconfig: 'packages/js-ofrep-worker/tsconfig.spec.json' }],
       },
       moduleNameMapper: {
+        '^@openfeature/flagd-ofrep-cf-worker$': '<rootDir>/packages/js-ofrep-worker/src/index.ts',
         '^@openfeature/flagd-core$': '<rootDir>/contrib/js-sdk-contrib/libs/shared/flagd-core/src/index.ts',
       },
       // Allow ts-jest to transform flagd-core workspace-linked files (ESM exports in .js)

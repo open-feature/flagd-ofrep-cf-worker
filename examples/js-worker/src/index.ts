@@ -1,3 +1,5 @@
+import { Hono } from 'hono';
+import { cors } from 'hono/cors';
 import { OfrepHandler, extractAuthToken } from '@openfeature/flagd-ofrep-cf-worker';
 
 // Static flag configuration (bundled at build time)
@@ -31,6 +33,17 @@ interface Env {
 
 const CACHE_TTL_SECONDS = 60;
 const CACHE_HOST = 'https://ofrep-r2-cache';
+const EVALUATE_FLAGS_PATH = '/ofrep/v1/evaluate/flags';
+const OFREP_CORS_OPTIONS = {
+  origin: '*',
+  allowMethods: ['GET', 'POST', 'OPTIONS'],
+  allowHeaders: ['Content-Type', 'Authorization', 'X-API-Key', 'If-None-Match'],
+  exposeHeaders: ['ETag'],
+};
+
+function isOfrepEvaluationRequest(pathname: string, method: string): boolean {
+  return method === 'POST' && (pathname === EVALUATE_FLAGS_PATH || pathname.startsWith(`${EVALUATE_FLAGS_PATH}/`));
+}
 
 /**
  * Resolve an auth token to an R2 object key.
@@ -124,61 +137,73 @@ async function fetchFromR2AndCache(
 
 // Static handler — created once at module scope, reused across requests
 const staticHandler = new OfrepHandler({ staticFlags });
+const app = new Hono<{ Bindings: Env }>();
 
-export default {
-  async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
-    const url = new URL(request.url);
+app.use('/ofrep/*', cors(OFREP_CORS_OPTIONS));
 
-    // Health check
-    if (url.pathname === '/health' || url.pathname === '/') {
-      return Response.json({
-        status: 'ok',
-        service: 'flagd-ofrep-js-worker',
-        flagSource: env.FLAG_SOURCE === 'r2' ? 'r2' : 'static',
-        endpoints: {
-          evaluate: '/ofrep/v1/evaluate/flags/{key}',
-          bulk: '/ofrep/v1/evaluate/flags',
-        },
-      });
-    }
+app.get('/', (c) =>
+  c.json({
+    status: 'ok',
+    service: 'flagd-ofrep-js-worker',
+    flagSource: c.env.FLAG_SOURCE === 'r2' ? 'r2' : 'static',
+    endpoints: {
+      evaluate: '/ofrep/v1/evaluate/flags/{key}',
+      bulk: '/ofrep/v1/evaluate/flags',
+    },
+  }),
+);
 
-    // OFREP routes
-    if (url.pathname.startsWith('/ofrep/')) {
-      // Static mode — bundled flags, no auth required
-      if (env.FLAG_SOURCE !== 'r2') {
-        return staticHandler.handleRequest(request);
-      }
+app.get('/health', (c) =>
+  c.json({
+    status: 'ok',
+    service: 'flagd-ofrep-js-worker',
+    flagSource: c.env.FLAG_SOURCE === 'r2' ? 'r2' : 'static',
+    endpoints: {
+      evaluate: '/ofrep/v1/evaluate/flags/{key}',
+      bulk: '/ofrep/v1/evaluate/flags',
+    },
+  }),
+);
 
-      // R2 mode — per-token flag configs
-      if (!env.FLAGS_BUCKET) {
-        return Response.json({ errorDetails: 'R2 bucket not configured' }, { status: 500 });
-      }
+app.all('/ofrep/*', async (c) => {
+  const request = c.req.raw;
+  const { env } = c;
+  const ctx = c.executionCtx;
+  const url = new URL(request.url);
 
-      // Extract auth token per OFREP spec (Bearer or X-API-Key)
-      const token = extractAuthToken(request);
-      if (!token) {
-        return Response.json({ errorDetails: 'Authentication required' }, { status: 401 });
-      }
+  if (env.FLAG_SOURCE !== 'r2') {
+    return staticHandler.handleRequest(request);
+  }
 
-      // Load config from R2 (with CF Cache API layering)
-      let config: object | null;
-      try {
-        config = await loadConfigFromR2(env.FLAGS_BUCKET, token, ctx);
-      } catch (error) {
-        console.error('Failed to load config from R2', error);
-        return Response.json({ errorDetails: 'Internal server error' }, { status: 500 });
-      }
+  if (!isOfrepEvaluationRequest(url.pathname, request.method)) {
+    return staticHandler.handleRequest(request);
+  }
 
-      if (!config) {
-        return Response.json({ errorDetails: 'Configuration not found' }, { status: 404 });
-      }
+  if (!env.FLAGS_BUCKET) {
+    return c.json({ errorDetails: 'R2 bucket not configured' }, 500);
+  }
 
-      // Create per-request handler with the loaded config
-      const handler = new OfrepHandler({ staticFlags: config });
-      return handler.handleRequest(request);
-    }
+  const token = extractAuthToken(request);
+  if (!token) {
+    return c.json({ errorDetails: 'Authentication required' }, 401);
+  }
 
-    // Not found
-    return Response.json({ error: 'Not found' }, { status: 404 });
-  },
-};
+  let config: object | null;
+  try {
+    config = await loadConfigFromR2(env.FLAGS_BUCKET, token, ctx);
+  } catch (error) {
+    console.error('Failed to load config from R2', error);
+    return c.json({ errorDetails: 'Internal server error' }, 500);
+  }
+
+  if (!config) {
+    return c.json({ errorDetails: 'Configuration not found' }, 404);
+  }
+
+  const handler = new OfrepHandler({ staticFlags: config });
+  return handler.handleRequest(request);
+});
+
+app.notFound((c) => c.json({ error: 'Not found' }, 404));
+
+export default app;
