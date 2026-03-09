@@ -1,3 +1,4 @@
 [submodule "contrib/js-sdk-contrib"]
 	path = contrib/js-sdk-contrib
-	url = https://github.com/DevCycleHQ-Sandbox/js-sdk-contrib.git
+	url = https://github.com/open-feature/js-sdk-contrib.git
+	branch = feat/workers-compat-targeting

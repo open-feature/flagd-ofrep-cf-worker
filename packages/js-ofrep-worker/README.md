@@ -4,7 +4,7 @@ flagd OFREP handler for Cloudflare Workers - in-process flag evaluation compatib
 
 ## Overview
 
-This package provides a ready-to-use OFREP (OpenFeature Remote Evaluation Protocol) handler for Cloudflare Workers. It uses a [forked version of `@openfeature/flagd-core`](https://github.com/DevCycleHQ-Sandbox/js-sdk-contrib/tree/feat/workers-compatibility) with Workers compatibility mode, performing flag evaluations entirely within the worker.
+This package provides a ready-to-use OFREP (OpenFeature Remote Evaluation Protocol) handler for Cloudflare Workers. It uses a [forked version of `@openfeature/flagd-core`](https://github.com/open-feature/js-sdk-contrib/tree/feat/workers-compat-targeting) with Workers compatibility mode, performing flag evaluations entirely within the worker.
 
 **Key Features:**
 
@@ -43,7 +43,7 @@ const flags = {
 };
 
 // Create the handler
-const handler = createOfrepHandler({ flags });
+const handler = createOfrepHandler({ staticFlags: flags });
 
 // Export for Cloudflare Workers
 export default {
@@ -59,7 +59,7 @@ Creates a fetch handler for OFREP endpoints.
 
 **Options:**
 
-- `flags` (required): Flag configuration in flagd format (string or object)
+- `staticFlags` (required): Flag configuration in flagd format (string or object)
 - `basePath` (optional): Base path for OFREP endpoints. Default: `/ofrep/v1`
 - `cors` (optional): Enable CORS headers. Default: `true`
 - `corsOrigin` (optional): CORS origin. Default: `*`
@@ -88,7 +88,7 @@ Class-based API for more control over the handler.
 ```typescript
 import { OfrepHandler } from '@openfeature/flagd-ofrep-cf-worker';
 
-const handler = new OfrepHandler({ flags });
+const handler = new OfrepHandler({ staticFlags: flags });
 
 // Update flags at runtime
 handler.setFlags(newFlags);
@@ -158,7 +158,7 @@ Bulk evaluate all flags.
 
 ## How It Works
 
-This package wraps `@openfeature/flagd-core` with Workers compatibility mode enabled (`{ workers: true }`). This mode:
+This package wraps `@openfeature/flagd-core` with workers compatibility options enabled (`{ disableDynamicCodeGeneration: true }`). This mode:
 
 1. **Uses pre-compiled JSON Schema validators** instead of runtime `ajv.compile()`, avoiding `new Function()`
 2. **Uses JSONLogic interpreter mode** (`.run()`) instead of compilation (`.build()`), avoiding `new Function()`

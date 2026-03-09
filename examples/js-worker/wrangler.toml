@@ -4,3 +4,17 @@ compatibility_date = "2026-01-29"
 
 [dev]
 port = 8787
+
+# R2 bucket for per-token flag configurations.
+# To enable R2 mode, set FLAG_SOURCE = "r2" in [vars] below.
+# Create the bucket: wrangler r2 bucket create ofrep-flags
+#
+# Upload a flag config for a token:
+#   wrangler r2 object put ofrep-flags/flags/<token>/flags.json --file=flags.json
+#
+# [[r2_buckets]]
+# binding = "FLAGS_R2_BUCKET"
+# bucket_name = "ofrep-flags"
+
+# [vars]
+# FLAG_SOURCE = "r2"

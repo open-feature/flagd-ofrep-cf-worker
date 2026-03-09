@@ -11,7 +11,8 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@openfeature/flagd-ofrep-cf-worker": "*"
+    "@openfeature/flagd-ofrep-cf-worker": "*",
+    "hono": "^4.12.5"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20260127.0",
