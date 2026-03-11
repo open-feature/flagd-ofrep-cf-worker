@@ -2,262 +2,65 @@
 
 > **Warning:** This project is under active development and is not yet ready for production use.
 
-A Cloudflare Worker for running flagd in-process evaluation, exposing an OFREP (OpenFeature Remote Evaluation Protocol) API.
+This repository contains a reusable Cloudflare Workers package for in-process [flagd](https://flagd.dev/) evaluation plus a reference worker that exposes [OFREP](https://github.com/open-feature/protocol) evaluation endpoints. The package lives in `packages/js-ofrep-worker`, while `examples/js-worker` shows how to compose it with Hono, optional auth handling, and optional R2-backed flag loading.
 
-## Overview
+## Repository Guide
 
-This project enables feature flag evaluation entirely within Cloudflare Workers using the flagd evaluation engine. It uses the released Workers-compatible `@openfeature/flagd-core` package and exposes the [OFREP API](https://github.com/open-feature/protocol), allowing clients to evaluate flags via HTTP.
+- Package docs: [`packages/js-ofrep-worker/README.md`](packages/js-ofrep-worker/README.md)
+- Example worker: [`examples/js-worker`](examples/js-worker)
+- Shared test fixtures: [`shared/test-flags.json`](shared/test-flags.json)
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                     Cloudflare Worker                           │
-│  ┌───────────────────────────────────────────────────────────┐  │
-│  │                    OFREP Handler                          │  │
-│  │  POST /ofrep/v1/evaluate/flags/{key}  → Single eval       │  │
-│  │  POST /ofrep/v1/evaluate/flags        → Bulk eval         │  │
-│  └───────────────────────────────────────────────────────────┘  │
-│                            │                                    │
-│                            ▼                                    │
-│  ┌───────────────────────────────────────────────────────────┐  │
-│  │              flagd Evaluation Engine                      │  │
-│  │  • JSONLogic targeting rules                              │  │
-│  │  • Fractional evaluation (percentage rollouts)            │  │
-│  │  • Semantic version comparison                            │  │
-│  │  • String operations (starts_with, ends_with)             │  │
-│  └───────────────────────────────────────────────────────────┘  │
-│                            │                                    │
-│                            ▼                                    │
-│  ┌───────────────────────────────────────────────────────────┐  │
-│  │                  Flag Configuration                       │  │
-│  │             (bundled JSON at build time)                  │  │
-│  └───────────────────────────────────────────────────────────┘  │
-└─────────────────────────────────────────────────────────────────┘
-```
+## Repository Layout
 
-## Project Structure
-
-```
+```text
 flagd-ofrep-cf-worker/
 ├── packages/
-│   └── js-ofrep-worker/           # Reusable JS package (@openfeature/flagd-ofrep-cf-worker)
+│   └── js-ofrep-worker/           # Reusable package: @openfeature/flagd-ofrep-cf-worker
 ├── examples/
-│   └── js-worker/                 # Cloudflare Worker example
+│   └── js-worker/                 # Reference Cloudflare Worker
 └── shared/
-    └── test-flags.json            # Shared test flag definitions
+    └── test-flags.json            # Shared fixtures used by tests and docs
 ```
 
----
-
-## Workers Compatibility
-
-`@openfeature/flagd-core@1.3.0` and later support Cloudflare Workers and other V8 isolate runtimes without relying on dynamic code generation. This project consumes the released package directly, using `disableDynamicCodeGeneration: true` when creating `FlagdCore` so targeting rules stay compatible with Workers runtime restrictions. The upstream work landed through [open-feature/js-sdk-contrib#1480](https://github.com/open-feature/js-sdk-contrib/issues/1480).
-
----
-
-## Quick Start
+## Local Development
 
 ```bash
-# Install dependencies
 npm install
-
-# Build packages
 npm run build
-
-# Run the worker locally
-npm run dev
-```
-
-## Package Usage
-
-```typescript
-import { createOfrepHandler } from '@openfeature/flagd-ofrep-cf-worker';
-import flags from './flags.json';
-
-const handler = createOfrepHandler({ staticFlags: flags });
-
-export default {
-  fetch: handler,
-};
-```
-
-See [packages/js-ofrep-worker/README.md](packages/js-ofrep-worker/README.md) for full documentation.
-
----
-
-## OFREP API Reference
-
-### Evaluate Single Flag
-
-```
-POST /ofrep/v1/evaluate/flags/{key}
-```
-
-**Request:**
-
-```json
-{
-  "context": {
-    "targetingKey": "user-123",
-    "email": "user@example.com",
-    "plan": "premium"
-  }
-}
-```
-
-**Response (200):**
-
-```json
-{
-  "key": "my-feature",
-  "value": true,
-  "reason": "TARGETING_MATCH",
-  "variant": "on",
-  "metadata": {
-    "flagSetId": "production"
-  }
-}
-```
-
-### Bulk Evaluate All Flags
-
-```
-POST /ofrep/v1/evaluate/flags
-```
-
-**Request:**
-
-```json
-{
-  "context": {
-    "targetingKey": "user-123"
-  }
-}
-```
-
-**Response (200):**
-
-```json
-{
-  "flags": [
-    {
-      "key": "feature-a",
-      "value": true,
-      "reason": "STATIC",
-      "variant": "on"
-    }
-  ],
-  "metadata": {
-    "flagSetId": "production",
-    "version": "1.0.0"
-  }
-}
-```
-
-### Test the API
-
-```bash
-# Health check
-curl http://localhost:8787/
-
-# Evaluate a single flag
-curl -X POST http://localhost:8787/ofrep/v1/evaluate/flags/simple-boolean \
-  -H "Content-Type: application/json" \
-  -d '{"context": {"targetingKey": "user-123"}}'
-
-# Evaluate with targeting context
-curl -X POST http://localhost:8787/ofrep/v1/evaluate/flags/targeted-boolean \
-  -H "Content-Type: application/json" \
-  -d '{"context": {"targetingKey": "user-123", "email": "user@openfeature.dev"}}'
-
-# Bulk evaluate all flags
-curl -X POST http://localhost:8787/ofrep/v1/evaluate/flags \
-  -H "Content-Type: application/json" \
-  -d '{"context": {"targetingKey": "user-123"}}'
-```
-
----
-
-## Supported Targeting Features
-
-| Feature               | Description                | Example                                                       |
-| --------------------- | -------------------------- | ------------------------------------------------------------- |
-| JSONLogic rules       | Complex conditional logic  | `{"if": [{"==": [{"var": "plan"}, "premium"]}, "on", "off"]}` |
-| Fractional evaluation | Percentage-based rollouts  | `{"fractional": [["control", 50], ["treatment", 50]]}`        |
-| String comparison     | `starts_with`, `ends_with` | `{"starts_with": [{"var": "email"}, "admin"]}`                |
-| Semantic versioning   | Version comparison         | `{"sem_ver": [{"var": "version"}, ">=", "2.0.0"]}`            |
-
-## Flag Configuration
-
-Flags use the [flagd flag definition format](https://flagd.dev/reference/flag-definitions/). See [examples/js-worker/src/flags.json](examples/js-worker/src/flags.json) for examples.
-
----
-
-## Roadmap / Future Enhancements
-
-- [x] **JavaScript Worker**: Workers-compatible flagd-core integration
-- [x] **Upstream PRs**: Workers compatibility merged into upstream repos
-- [ ] **Cloudflare KV**: Load flag configurations from KV at runtime
-- [ ] **Durable Objects**: Real-time flag updates with WebSocket sync
-- [ ] **External Sync**: Fetch flags from external HTTP endpoint
-- [ ] **Cache API**: Cache evaluated results for performance
-- [ ] **ETag Support**: Bulk evaluation caching with ETags
-
----
-
-## Development
-
-### Build All
-
-```bash
-npm run build
-```
-
-### Run Tests
-
-```bash
 npm test
-```
-
-### Lint
-
-```bash
 npm run lint
-```
-
-### Format
-
-```bash
-# Check formatting
 npm run format
-
-# Auto-fix formatting
-npm run format:fix
 ```
 
-### Run Worker Locally
+For the reference worker:
 
 ```bash
+# Runs examples/js-worker with wrangler dev
 npm run dev
-```
 
-### Deploy
-
-```bash
+# Deploys examples/js-worker with wrangler deploy
 npm run deploy
 ```
 
-### Build Tooling
+## Example Worker Notes
 
-The library is built with [tsup](https://tsup.egoist.dev/) (which uses [esbuild](https://esbuild.github.io/) under the hood), outputting both CJS and ESM formats. This aligns with the [js-sdk](https://github.com/open-feature/js-sdk) repo which uses esbuild directly. In the future, we may switch to direct esbuild + [rollup-plugin-dts](https://github.com/nicolo-ribaudo/rollup-plugin-dts) for type bundling to fully match the js-sdk pattern.
+The worker in `examples/js-worker` demonstrates two flag sources:
 
----
+- Bundled static flags from `examples/js-worker/src/flags.json` for local development and the default example flow
+- Per-token flag configs loaded from R2 when `FLAG_SOURCE=r2` and `FLAGS_R2_BUCKET` is configured
 
-## Related Projects
+The package itself does not automatically add Hono routing, require authentication, or load flags from R2. Those behaviors are composed in the example worker around the package's `OfrepHandler` and `extractAuthToken()` helper.
 
-- [flagd](https://flagd.dev/) - Feature flag evaluation engine
-- [OpenFeature](https://openfeature.dev/) - Open standard for feature flags
-- [OFREP Specification](https://github.com/open-feature/protocol) - OpenFeature Remote Evaluation Protocol
-- [js-sdk-contrib](https://github.com/open-feature/js-sdk-contrib) - OpenFeature JavaScript SDK contributions
+## Sample Flags
+
+The repo has two similar flag sets for different purposes:
+
+- `examples/js-worker/src/flags.json` is the canonical sample config for the example worker and `npm run dev`
+- `shared/test-flags.json` is the broader shared fixture set used by tests and other repository-level validation
+
+## Workers Compatibility
+
+`@openfeature/flagd-core@1.3.0` and later support Cloudflare Workers and other V8 isolate runtimes without relying on dynamic code generation. This repo consumes the released package directly and uses `disableDynamicCodeGeneration: true` so targeting rules stay compatible with Workers runtime restrictions. The upstream work landed through [open-feature/js-sdk-contrib#1480](https://github.com/open-feature/js-sdk-contrib/issues/1480).
 
 ## License
 
