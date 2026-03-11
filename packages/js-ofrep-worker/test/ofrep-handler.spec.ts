@@ -1,6 +1,29 @@
 import { OfrepHandler, createOfrepHandler } from '../src/ofrep-handler';
 import testFlags from '../../../shared/test-flags.json';
 
+type ErrorWithCause = Error & {
+  cause?: Error;
+};
+
+function expectInvalidConfigError(action: () => void, causePattern?: RegExp): void {
+  const consoleDebugSpy = jest.spyOn(console, 'debug').mockImplementation(() => {});
+
+  try {
+    action();
+    fail('Expected invalid flag configuration to throw');
+  } catch (error) {
+    const invalidConfigError = error as ErrorWithCause;
+
+    expect(invalidConfigError.message).toBe('invalid flagd flag configuration');
+
+    if (causePattern) {
+      expect(invalidConfigError.cause?.message ?? '').toMatch(causePattern);
+    }
+  } finally {
+    consoleDebugSpy.mockRestore();
+  }
+}
+
 function makeRequest(path: string, options: RequestInit = {}): Request {
   return new Request(`http://localhost${path}`, options);
 }
@@ -18,6 +41,66 @@ describe('OfrepHandler', () => {
 
   beforeEach(() => {
     handler = new OfrepHandler({ staticFlags: testFlags });
+  });
+
+  describe('invalid config', () => {
+    it('should reject invalid static flags in the constructor', () => {
+      expectInvalidConfigError(
+        () =>
+          new OfrepHandler({
+            staticFlags: {
+              flags: {
+                broken: {
+                  state: 'BROKEN',
+                  defaultVariant: 'on',
+                  variants: { on: true },
+                },
+              },
+            },
+          }),
+        /Invalid flag state/,
+      );
+    });
+
+    it('should reject invalid static flags when creating a fetch handler', () => {
+      expectInvalidConfigError(
+        () =>
+          createOfrepHandler({
+            staticFlags: {
+              flags: {
+                broken: {
+                  state: 'ENABLED',
+                  defaultVariant: 'missing',
+                  variants: { on: true },
+                },
+              },
+            },
+          }),
+        /Default variant missing missing from variants/,
+      );
+    });
+
+    it('should preserve the last valid configuration when setFlags fails', async () => {
+      expectInvalidConfigError(
+        () =>
+          handler.setFlags({
+            flags: {
+              broken: {
+                state: 'ENABLED',
+                defaultVariant: 'on',
+              },
+            },
+          }),
+        /Cannot convert undefined or null to object/,
+      );
+
+      const response = await handler.handleRequest(postJson('/ofrep/v1/evaluate/flags/simple-boolean', {}));
+      expect(response.status).toBe(200);
+
+      const body = await response.json();
+      expect(body.value).toBe(false);
+      expect(body.variant).toBe('off');
+    });
   });
 
   describe('routing', () => {
