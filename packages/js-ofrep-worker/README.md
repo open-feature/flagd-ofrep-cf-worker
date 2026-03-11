@@ -1,18 +1,6 @@
 # @openfeature/flagd-ofrep-cf-worker
 
-flagd OFREP handler for Cloudflare Workers - in-process flag evaluation compatible with the flagd flag format.
-
-## Overview
-
-This package provides a ready-to-use OFREP (OpenFeature Remote Evaluation Protocol) handler for Cloudflare Workers. It uses the released `@openfeature/flagd-core` package in Workers compatibility mode, performing flag evaluations entirely within the worker.
-
-**Key Features:**
-
-- Full OFREP API compliance
-- Workers-compatible (no `eval` or `new Function()`)
-- Supports flagd targeting rules (JSONLogic)
-- Fractional evaluation (percentage rollouts)
-- Custom operators: `starts_with`, `ends_with`, `sem_ver`, `fractional`
+Cloudflare Workers package for evaluating [flagd](https://flagd.dev/) flags in-process and serving [OFREP](https://github.com/open-feature/protocol) evaluation endpoints.
 
 ## Installation
 
@@ -20,199 +8,64 @@ This package provides a ready-to-use OFREP (OpenFeature Remote Evaluation Protoc
 npm install @openfeature/flagd-ofrep-cf-worker
 ```
 
-## Quick Start
+## Minimal Usage
 
 ```typescript
 import { createOfrepHandler } from '@openfeature/flagd-ofrep-cf-worker';
+import flags from './flags.json';
 
-// Your flag configuration (flagd format)
-const flags = {
-  flags: {
-    'my-feature': {
-      state: 'ENABLED',
-      defaultVariant: 'off',
-      variants: {
-        on: true,
-        off: false,
-      },
-      targeting: {
-        if: [{ '==': [{ var: 'plan' }, 'premium'] }, 'on', 'off'],
-      },
-    },
-  },
-};
-
-// Create the handler
 const handler = createOfrepHandler({ staticFlags: flags });
 
-// Export for Cloudflare Workers
 export default {
   fetch: handler,
 };
 ```
 
+`staticFlags` accepts a flagd-formatted JSON object or JSON string. Endpoints default to `/ofrep/v1`.
+
 ## API
 
 ### `createOfrepHandler(options)`
 
-Creates a fetch handler for OFREP endpoints.
+Creates a fetch handler that serves:
 
-**Options:**
+- `POST /ofrep/v1/evaluate/flags/{key}`
+- `POST /ofrep/v1/evaluate/flags`
 
-- `staticFlags` (required): Flag configuration in flagd format (string or object)
-- `basePath` (optional): Base path for OFREP endpoints. Default: `/ofrep/v1`
-- `cors` (optional): Enable CORS headers. Default: `true`
-- `corsOrigin` (optional): CORS origin. Default: `*`
+Supported options:
 
-### `FlagStore`
-
-Lower-level API for flag evaluation if you need more control.
-
-```typescript
-import { FlagStore } from '@openfeature/flagd-ofrep-cf-worker';
-
-const store = new FlagStore(flags);
-
-// Evaluate specific flag types
-const boolResult = store.resolveBooleanValue('my-flag', false, context);
-const stringResult = store.resolveStringValue('my-flag', 'default', context);
-
-// Evaluate all flags
-const allFlags = store.resolveAll(context);
-```
+- `staticFlags` (required): flagd-formatted flag config as an object or JSON string
+- `basePath`: override the default `/ofrep/v1`
+- `cors`: enable or disable CORS headers; defaults to `true`
+- `corsOrigin`: override the default `*` origin
 
 ### `OfrepHandler`
 
-Class-based API for more control over the handler.
+Class wrapper around the same handler logic. Use it when you want to call `handleRequest()` directly or replace flags later with `setFlags()`.
 
-```typescript
-import { OfrepHandler } from '@openfeature/flagd-ofrep-cf-worker';
+### `FlagStore`
 
-const handler = new OfrepHandler({ staticFlags: flags });
+Lower-level evaluation API for resolving individual flags or evaluating all flags outside the HTTP handler.
 
-// Update flags at runtime
-handler.setFlags(newFlags);
+### `extractAuthToken`
 
-// Handle requests
-const response = await handler.handleRequest(request);
-```
+Helper for reading bearer tokens from `Authorization` or API keys from `X-API-Key`.
 
-## OFREP Endpoints
+### Types and re-exports
 
-The handler exposes two OFREP endpoints:
+The package also exports OFREP request/response types plus selected types from `@openfeature/core` and `@openfeature/flagd-core`.
 
-### `POST /ofrep/v1/evaluate/flags/{key}`
+## Compatibility
 
-Evaluate a single flag.
+This package is designed for Cloudflare Workers and uses the released `@openfeature/flagd-core@1.3.0+` package with `disableDynamicCodeGeneration: true` so it avoids runtime code generation paths that are not allowed in the Workers runtime.
 
-**Request:**
+It supports the flagd features exercised by this repo's package and example worker, including JSONLogic targeting, fractional evaluation, semantic version comparison, string operators, metadata, and shared evaluators.
 
-```json
-{
-  "context": {
-    "targetingKey": "user-123",
-    "plan": "premium"
-  }
-}
-```
+## Package Scope
 
-**Response (200):**
+This package provides the OFREP handler and evaluation primitives. Authentication enforcement, Hono routing, and R2-backed runtime config loading are application-level patterns shown in `examples/js-worker/src/index.ts`.
 
-```json
-{
-  "key": "my-feature",
-  "value": true,
-  "reason": "TARGETING_MATCH",
-  "variant": "on"
-}
-```
-
-### `POST /ofrep/v1/evaluate/flags`
-
-Bulk evaluate all flags.
-
-**Request:**
-
-```json
-{
-  "context": {
-    "targetingKey": "user-123"
-  }
-}
-```
-
-**Response (200):**
-
-```json
-{
-  "flags": [
-    {
-      "key": "my-feature",
-      "value": true,
-      "reason": "STATIC",
-      "variant": "on"
-    }
-  ]
-}
-```
-
-## How It Works
-
-This package wraps `@openfeature/flagd-core@1.3.0+` with workers compatibility options enabled (`{ disableDynamicCodeGeneration: true }`). This mode:
-
-1. **Uses pre-compiled JSON Schema validators** instead of runtime `ajv.compile()`, avoiding `new Function()`
-2. **Uses JSONLogic interpreter mode** (`.run()`) instead of compilation (`.build()`), avoiding `new Function()`
-
-This makes the package fully compatible with Cloudflare Workers' V8 isolate security restrictions.
-
-## Flag Configuration
-
-Flags use the [flagd flag definition format](https://flagd.dev/reference/flag-definitions/).
-
-### Supported Features
-
-- Boolean, string, number, and object flag values
-- JSONLogic targeting rules
-- Fractional evaluation (percentage rollouts)
-- Semantic version comparison
-- String comparison (starts_with, ends_with)
-- Flag metadata
-- Shared evaluators (`$evaluators`)
-
-### Example Configuration
-
-```json
-{
-  "flags": {
-    "feature-flag": {
-      "state": "ENABLED",
-      "defaultVariant": "off",
-      "variants": {
-        "on": true,
-        "off": false
-      },
-      "targeting": {
-        "if": [{ "in": ["@company.com", { "var": "email" }] }, "on", "off"]
-      }
-    },
-    "rollout-flag": {
-      "state": "ENABLED",
-      "defaultVariant": "control",
-      "variants": {
-        "control": "control",
-        "treatment": "treatment"
-      },
-      "targeting": {
-        "fractional": [
-          { "cat": [{ "var": "$flagd.flagKey" }, { "var": "targetingKey" }] },
-          ["control", 90],
-          ["treatment", 10]
-        ]
-      }
-    }
-  }
-}
-```
+If you want that auth flow, the package exports `extractAuthToken()`, but your worker is still responsible for deciding when auth is required and where flags are loaded from.
 
 ## License
 
