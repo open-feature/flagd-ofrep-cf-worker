@@ -78,23 +78,45 @@ describe('OfrepHandler', () => {
   });
 
   describe('CORS', () => {
-    it('should handle OPTIONS preflight request', async () => {
+    it('should not expose CORS headers by default', async () => {
+      const request = postJson('/ofrep/v1/evaluate/flags/simple-boolean', {});
+      const response = await handler.handleRequest(request);
+      expect(response.headers.get('Access-Control-Allow-Origin')).toBeNull();
+    });
+
+    it('should not handle OPTIONS preflight when CORS is disabled', async () => {
       const request = makeRequest('/ofrep/v1/evaluate/flags/simple-boolean', { method: 'OPTIONS' });
       const response = await handler.handleRequest(request);
+      expect(response.status).toBe(404);
+      expect(response.headers.get('Access-Control-Allow-Origin')).toBeNull();
+    });
+
+    it('should handle OPTIONS preflight when CORS is enabled', async () => {
+      const corsHandler = new OfrepHandler({
+        staticFlags: testFlags,
+        cors: true,
+      });
+      const request = makeRequest('/ofrep/v1/evaluate/flags/simple-boolean', { method: 'OPTIONS' });
+      const response = await corsHandler.handleRequest(request);
       expect(response.status).toBe(204);
       expect(response.headers.get('Access-Control-Allow-Origin')).toBe('*');
       expect(response.headers.get('Access-Control-Allow-Methods')).toContain('POST');
     });
 
-    it('should include CORS headers in evaluation responses', async () => {
+    it('should include CORS headers in evaluation responses when enabled', async () => {
+      const corsHandler = new OfrepHandler({
+        staticFlags: testFlags,
+        cors: true,
+      });
       const request = postJson('/ofrep/v1/evaluate/flags/simple-boolean', {});
-      const response = await handler.handleRequest(request);
+      const response = await corsHandler.handleRequest(request);
       expect(response.headers.get('Access-Control-Allow-Origin')).toBe('*');
     });
 
     it('should use custom CORS origin', async () => {
       const customHandler = new OfrepHandler({
         staticFlags: testFlags,
+        cors: true,
         corsOrigin: 'https://example.com',
       });
       const request = postJson('/ofrep/v1/evaluate/flags/simple-boolean', {});

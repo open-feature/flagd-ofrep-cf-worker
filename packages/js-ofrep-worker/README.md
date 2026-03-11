@@ -23,6 +23,8 @@ export default {
 
 `staticFlags` accepts a flagd-formatted JSON object or JSON string. Endpoints default to `/ofrep/v1`.
 
+The handler does not emit CORS headers unless you opt in with `cors: true`. If you need browser access, prefer a specific `corsOrigin` instead of `*`.
+
 ## API
 
 ### `createOfrepHandler(options)`
@@ -36,8 +38,18 @@ Supported options:
 
 - `staticFlags` (required): flagd-formatted flag config as an object or JSON string
 - `basePath`: override the default `/ofrep/v1`
-- `cors`: enable or disable CORS headers; defaults to `true`
+- `cors`: enable or disable CORS headers; defaults to `false`
 - `corsOrigin`: override the default `*` origin
+
+To expose the handler to browser-based clients, enable CORS explicitly:
+
+```typescript
+const handler = createOfrepHandler({
+  staticFlags: flags,
+  cors: true,
+  corsOrigin: 'https://app.example.com',
+});
+```
 
 ### `OfrepHandler`
 

@@ -9,7 +9,7 @@ const config: Config = {
       roots: ['<rootDir>/packages/js-ofrep-worker'],
       testMatch: ['<rootDir>/packages/js-ofrep-worker/test/**/*.spec.ts'],
       transform: {
-        '^.+\\.[tj]s$': ['ts-jest', { tsconfig: 'packages/js-ofrep-worker/tsconfig.spec.json' }],
+        '^.+\\.[tj]s$': ['ts-jest', { tsconfig: '<rootDir>/packages/js-ofrep-worker/tsconfig.spec.json' }],
       },
       moduleNameMapper: {
         '^@openfeature/flagd-ofrep-cf-worker$': '<rootDir>/packages/js-ofrep-worker/src/index.ts',
