@@ -28,6 +28,7 @@ flagd-ofrep-cf-worker/
 npm install
 npm run build
 npm test
+npm run test:smoke:worker
 npm run lint
 npm run format
 ```
