@@ -6,7 +6,7 @@ A Cloudflare Worker for running flagd in-process evaluation, exposing an OFREP (
 
 ## Overview
 
-This project enables feature flag evaluation entirely within Cloudflare Workers using the flagd evaluation engine. It uses a Workers-compatible fork of `@openfeature/flagd-core` and exposes the [OFREP API](https://github.com/open-feature/protocol), allowing clients to evaluate flags via HTTP.
+This project enables feature flag evaluation entirely within Cloudflare Workers using the flagd evaluation engine. It uses the released Workers-compatible `@openfeature/flagd-core` package and exposes the [OFREP API](https://github.com/open-feature/protocol), allowing clients to evaluate flags via HTTP.
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -42,8 +42,6 @@ flagd-ofrep-cf-worker/
 │   └── js-ofrep-worker/           # Reusable JS package (@openfeature/flagd-ofrep-cf-worker)
 ├── examples/
 │   └── js-worker/                 # Cloudflare Worker example
-├── contrib/
-│   └── js-sdk-contrib/            # Git submodule: forked JS flagd-core
 └── shared/
     └── test-flags.json            # Shared test flag definitions
 ```
@@ -52,7 +50,7 @@ flagd-ofrep-cf-worker/
 
 ## Workers Compatibility
 
-The standard `@openfeature/flagd-core` package cannot run directly in Cloudflare Workers. This project currently uses a [fork](https://github.com/open-feature/js-sdk-contrib/tree/feat/workers-compat-targeting) (as a git submodule) with Workers compatibility patches. Work to upstream these changes is being tracked in [open-feature/js-sdk-contrib#1480](https://github.com/open-feature/js-sdk-contrib/issues/1480). Once those changes land, the submodule will be removed in favor of the published `@openfeature/flagd-core` package.
+`@openfeature/flagd-core@1.3.0` and later support Cloudflare Workers and other V8 isolate runtimes without relying on dynamic code generation. This project consumes the released package directly, using `disableDynamicCodeGeneration: true` when creating `FlagdCore` so targeting rules stay compatible with Workers runtime restrictions. The upstream work landed through [open-feature/js-sdk-contrib#1480](https://github.com/open-feature/js-sdk-contrib/issues/1480).
 
 ---
 
@@ -196,8 +194,8 @@ Flags use the [flagd flag definition format](https://flagd.dev/reference/flag-de
 
 ## Roadmap / Future Enhancements
 
-- [x] **JavaScript Worker**: Workers-compatible flagd-core fork
-- [ ] **Upstream PRs**: Contribute Workers compatibility back to upstream repos
+- [x] **JavaScript Worker**: Workers-compatible flagd-core integration
+- [x] **Upstream PRs**: Workers compatibility merged into upstream repos
 - [ ] **Cloudflare KV**: Load flag configurations from KV at runtime
 - [ ] **Durable Objects**: Real-time flag updates with WebSocket sync
 - [ ] **External Sync**: Fetch flags from external HTTP endpoint
@@ -248,22 +246,6 @@ npm run dev
 npm run deploy
 ```
 
-### Update Submodule
-
-```bash
-cd contrib/js-sdk-contrib
-git pull origin feat/workers-compat-targeting
-```
-
-### Regenerate Pre-compiled Validators
-
-If the flagd JSON schemas change:
-
-```bash
-cd contrib/js-sdk-contrib/libs/shared/flagd-core
-npm run build:validators
-```
-
 ### Build Tooling
 
 The library is built with [tsup](https://tsup.egoist.dev/) (which uses [esbuild](https://esbuild.github.io/) under the hood), outputting both CJS and ESM formats. This aligns with the [js-sdk](https://github.com/open-feature/js-sdk) repo which uses esbuild directly. In the future, we may switch to direct esbuild + [rollup-plugin-dts](https://github.com/nicolo-ribaudo/rollup-plugin-dts) for type bundling to fully match the js-sdk pattern.
@@ -276,12 +258,6 @@ The library is built with [tsup](https://tsup.egoist.dev/) (which uses [esbuild]
 - [OpenFeature](https://openfeature.dev/) - Open standard for feature flags
 - [OFREP Specification](https://github.com/open-feature/protocol) - OpenFeature Remote Evaluation Protocol
 - [js-sdk-contrib](https://github.com/open-feature/js-sdk-contrib) - OpenFeature JavaScript SDK contributions
-
-### Fork Used
-
-This fork adds Workers compatibility features that aren't yet upstream:
-
-- [open-feature/js-sdk-contrib](https://github.com/open-feature/js-sdk-contrib) - `feat/workers-compat-targeting` branch
 
 ## License
 

@@ -14,13 +14,11 @@
     "format:fix": "prettier --write .",
     "dev": "npm run dev --workspace=examples/js-worker",
     "deploy": "npm run deploy --workspace=examples/js-worker",
-    "prepare": "husky || true",
-    "postinstall": "node scripts/patch-flagd-core.js"
+    "prepare": "husky || true"
   },
   "workspaces": [
     "packages/*",
-    "examples/*",
-    "contrib/js-sdk-contrib/libs/shared/flagd-core"
+    "examples/*"
   ],
   "keywords": [
     "openfeature",
