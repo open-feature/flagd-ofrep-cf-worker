@@ -36,6 +36,9 @@
     "url": "https://github.com/open-feature/flagd-ofrep-cf-worker.git"
   },
   "devDependencies": {
+    "@openfeature/ofrep-core": "^2.0.0",
+    "@openfeature/ofrep-provider": "^0.2.3",
+    "@openfeature/server-sdk": "^1.20.2",
     "@types/imurmurhash": "^0.1.4",
     "@types/jest": "^29.5.14",
     "@types/node": "^24.0.0",
