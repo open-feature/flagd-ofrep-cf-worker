@@ -111,7 +111,8 @@ export interface OfrepHandlerOptions {
 
   /**
    * Enable CORS headers in responses.
-   * @default true
+   * Disabled by default so deployments must opt in before allowing browser-originated requests.
+   * @default false
    */
   cors?: boolean;
 

@@ -95,7 +95,7 @@ export class OfrepHandler {
   constructor(options: OfrepHandlerOptions) {
     this.store = new FlagStore(options.staticFlags);
     this.basePath = options.basePath || '/ofrep/v1';
-    this.cors = options.cors !== false;
+    this.cors = options.cors ?? false;
     this.corsOrigin = options.corsOrigin || '*';
   }
 
@@ -114,7 +114,7 @@ export class OfrepHandler {
     const path = url.pathname;
 
     // Handle CORS preflight
-    if (request.method === 'OPTIONS') {
+    if (request.method === 'OPTIONS' && this.cors) {
       return this.handleOptions();
     }
 
