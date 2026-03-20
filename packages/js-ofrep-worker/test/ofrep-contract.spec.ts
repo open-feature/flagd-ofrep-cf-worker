@@ -96,6 +96,23 @@ describe('OFREP contract', () => {
     expect(details.errorMessage).toContain('not found');
   });
 
+  it('maps disabled flags to code defaults with DISABLED reason', async () => {
+    const provider = new OFREPProvider({ baseUrl, fetchImplementation });
+
+    const details = await provider.resolveBooleanEvaluation('disabled-flag', true, {});
+
+    expect(details).toMatchObject({
+      value: true,
+      reason: 'DISABLED',
+      flagMetadata: {
+        flagSetId: 'test-flags',
+        version: '1.0.0',
+      },
+    });
+    expect(details.variant).toBeUndefined();
+    expect(details.errorCode).toBeUndefined();
+  });
+
   it('maps mismatched value types to TYPE_MISMATCH', async () => {
     const provider = new OFREPProvider({ baseUrl, fetchImplementation });
 
@@ -160,8 +177,19 @@ describe('OFREP contract', () => {
             owner: 'platform-team',
           }),
         }),
+        expect.objectContaining({
+          key: 'disabled-flag',
+          reason: 'DISABLED',
+          metadata: {
+            flagSetId: 'test-flags',
+            version: '1.0.0',
+          },
+        }),
       ]),
     );
-    expect(body.flags).not.toEqual(expect.arrayContaining([expect.objectContaining({ key: 'disabled-flag' })]));
+
+    const disabled = body.flags.find((flag) => flag.key === 'disabled-flag');
+    expect(disabled).toBeDefined();
+    expect(disabled).not.toHaveProperty('value');
   });
 });

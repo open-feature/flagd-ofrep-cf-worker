@@ -41,7 +41,7 @@ export interface TypedResolutionResult<T> {
  */
 export interface EvaluationDetails {
   flagKey: string;
-  value: JsonValue;
+  value: JsonValue | undefined;
   variant?: string;
   reason?: string;
   errorCode?: string;
@@ -93,6 +93,13 @@ export class FlagStore {
    */
   getFlagKeys(): string[] {
     return Array.from(this.core.getFlags().keys());
+  }
+
+  private mergeFlagMetadata(flagMetadata?: FlagMetadata): FlagMetadata {
+    return {
+      ...this.flagSetMetadata,
+      ...(flagMetadata || {}),
+    };
   }
 
   /**
@@ -190,10 +197,8 @@ export class FlagStore {
     if (flag.state === 'DISABLED') {
       return {
         value: undefined,
-        reason: StandardResolutionReasons.ERROR,
-        errorCode: ErrorCode.FLAG_NOT_FOUND,
-        errorMessage: `flag '${flagKey}' is disabled`,
-        flagMetadata: flag.metadata,
+        reason: StandardResolutionReasons.DISABLED,
+        flagMetadata: this.mergeFlagMetadata(flag.metadata),
       };
     }
 
@@ -210,18 +215,20 @@ export class FlagStore {
   }
 
   /**
-   * Resolve all enabled flags
+   * Resolve all configured flags, including code-default deferrals.
    */
   resolveAll(context: EvaluationContext = {}): EvaluationDetails[] {
-    const results = this.core.resolveAll(context);
-    return results.map((result) => ({
-      flagKey: result.flagKey,
-      value: result.value,
-      variant: result.variant,
-      reason: result.reason,
-      errorCode: result.errorCode,
-      errorMessage: result.errorMessage,
-      flagMetadata: result.flagMetadata,
-    }));
+    return this.getFlagKeys().map((flagKey) => {
+      const result = this.resolveValue(flagKey, context);
+      return {
+        flagKey,
+        value: result.value,
+        variant: result.variant,
+        reason: result.reason,
+        errorCode: result.errorCode,
+        errorMessage: result.errorMessage,
+        flagMetadata: result.flagMetadata,
+      };
+    });
   }
 }

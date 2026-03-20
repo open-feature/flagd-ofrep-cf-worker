@@ -137,6 +137,22 @@ describe('OfrepHandler', () => {
       const body = await response.json();
       expect(body.errorCode).toBe('PARSE_ERROR');
     });
+
+    it('should defer disabled flags to the code default contract', async () => {
+      const request = postJson('/ofrep/v1/evaluate/flags/disabled-flag', {});
+      const response = await handler.handleRequest(request);
+      expect(response.status).toBe(200);
+
+      const body = await response.json();
+      expect(body).toEqual({
+        key: 'disabled-flag',
+        reason: 'DISABLED',
+        metadata: {
+          flagSetId: 'test-flags',
+          version: '1.0.0',
+        },
+      });
+    });
   });
 
   describe('bulk evaluation', () => {
@@ -181,6 +197,24 @@ describe('OfrepHandler', () => {
 
       const body = await response.json();
       expect(body.errorCode).toBe('PARSE_ERROR');
+    });
+
+    it('should include disabled flags as code-default results in bulk responses', async () => {
+      const request = postJson('/ofrep/v1/evaluate/flags', {});
+      const response = await handler.handleRequest(request);
+      expect(response.status).toBe(200);
+
+      const body = await response.json();
+      const disabled = body.flags.find((f: { key: string }) => f.key === 'disabled-flag');
+
+      expect(disabled).toEqual({
+        key: 'disabled-flag',
+        reason: 'DISABLED',
+        metadata: {
+          flagSetId: 'test-flags',
+          version: '1.0.0',
+        },
+      });
     });
   });
 

@@ -103,11 +103,15 @@ describe('FlagStore', () => {
       expect(result.errorMessage).toContain('not found');
     });
 
-    it('should return error for disabled flag', () => {
+    it('should defer to code defaults for disabled flag', () => {
       const result = store.resolveValue('disabled-flag');
       expect(result.value).toBeUndefined();
-      expect(result.errorCode).toBe('FLAG_NOT_FOUND');
-      expect(result.errorMessage).toContain('disabled');
+      expect(result.reason).toBe('DISABLED');
+      expect(result.errorCode).toBeUndefined();
+      expect(result.flagMetadata).toEqual({
+        flagSetId: 'test-flags',
+        version: '1.0.0',
+      });
     });
   });
 
@@ -180,15 +184,14 @@ describe('FlagStore', () => {
   });
 
   describe('resolveAll', () => {
-    it('should resolve all enabled flags', () => {
+    it('should resolve all configured flags', () => {
       const results = store.resolveAll();
       expect(results.length).toBeGreaterThan(0);
 
       const flagKeys = results.map((r) => r.flagKey);
       expect(flagKeys).toContain('simple-boolean');
       expect(flagKeys).toContain('simple-string');
-      // disabled flags should still appear but may have error
-      expect(flagKeys).not.toContain('disabled-flag');
+      expect(flagKeys).toContain('disabled-flag');
     });
 
     it('should include flag values in results', () => {
@@ -203,6 +206,23 @@ describe('FlagStore', () => {
       const targeted = results.find((r) => r.flagKey === 'targeted-boolean');
       expect(targeted).toBeDefined();
       expect(targeted!.value).toBe(true);
+    });
+
+    it('should include disabled flags as code-default results', () => {
+      const results = store.resolveAll();
+      const disabled = results.find((r) => r.flagKey === 'disabled-flag');
+
+      expect(disabled).toBeDefined();
+      expect(disabled).toMatchObject({
+        flagKey: 'disabled-flag',
+        reason: 'DISABLED',
+        flagMetadata: {
+          flagSetId: 'test-flags',
+          version: '1.0.0',
+        },
+      });
+      expect(disabled!.value).toBeUndefined();
+      expect(disabled!.errorCode).toBeUndefined();
     });
   });
 });
