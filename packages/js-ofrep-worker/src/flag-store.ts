@@ -223,10 +223,7 @@ export class FlagStore {
         return {
           flagKey,
           value: undefined,
-          variant: undefined,
           reason: StandardResolutionReasons.DISABLED,
-          errorCode: undefined,
-          errorMessage: undefined,
           flagMetadata: this.mergeFlagMetadata(flag.metadata),
         };
       }
