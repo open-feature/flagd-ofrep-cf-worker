@@ -24,11 +24,15 @@ function requireBulkSuccess(result: Awaited<ReturnType<OFREPApi['postBulkEvaluat
 describe('OFREP contract', () => {
   let handler: OfrepHandler;
   let fetchImplementation: typeof fetch;
+  let provider: OFREPProvider;
+  let api: OFREPApi;
 
   beforeEach(() => {
     jest.useFakeTimers();
     handler = new OfrepHandler({ staticFlags: testFlags });
     fetchImplementation = createFetchImplementation(handler);
+    provider = new OFREPProvider({ baseUrl, fetchImplementation });
+    api = new OFREPApi({ baseUrl }, fetchImplementation);
   });
 
   afterEach(() => {
@@ -37,8 +41,6 @@ describe('OFREP contract', () => {
   });
 
   it('supports single-flag evaluation through the upstream OFREP provider', async () => {
-    const provider = new OFREPProvider({ baseUrl, fetchImplementation });
-
     const details = await provider.resolveBooleanEvaluation('simple-boolean', true, {});
 
     expect(details).toMatchObject({
@@ -49,8 +51,6 @@ describe('OFREP contract', () => {
   });
 
   it('passes evaluation context through the upstream OFREP provider', async () => {
-    const provider = new OFREPProvider({ baseUrl, fetchImplementation });
-
     const details = await provider.resolveBooleanEvaluation('targeted-boolean', false, {
       email: 'user@openfeature.dev',
     });
@@ -63,8 +63,6 @@ describe('OFREP contract', () => {
   });
 
   it('preserves primitive metadata on successful provider evaluations', async () => {
-    const provider = new OFREPProvider({ baseUrl, fetchImplementation });
-
     const details = await provider.resolveStringEvaluation('targeted-string', 'fallback', {
       role: 'admin',
     });
@@ -80,8 +78,6 @@ describe('OFREP contract', () => {
   });
 
   it('maps missing flags to FLAG_NOT_FOUND with flag set metadata', async () => {
-    const provider = new OFREPProvider({ baseUrl, fetchImplementation });
-
     const details = await provider.resolveBooleanEvaluation('does-not-exist', false, {});
 
     expect(details).toMatchObject({
@@ -97,8 +93,6 @@ describe('OFREP contract', () => {
   });
 
   it('maps disabled flags to code defaults with DISABLED reason', async () => {
-    const provider = new OFREPProvider({ baseUrl, fetchImplementation });
-
     const details = await provider.resolveBooleanEvaluation('disabled-flag', true, {});
 
     expect(details).toMatchObject({
@@ -114,8 +108,6 @@ describe('OFREP contract', () => {
   });
 
   it('maps mismatched value types to TYPE_MISMATCH', async () => {
-    const provider = new OFREPProvider({ baseUrl, fetchImplementation });
-
     const details = await provider.resolveNumberEvaluation('simple-boolean', 42, {});
 
     expect(details).toMatchObject({
@@ -126,8 +118,6 @@ describe('OFREP contract', () => {
   });
 
   it('supports bulk evaluation through the upstream OFREP API client', async () => {
-    const api = new OFREPApi({ baseUrl }, fetchImplementation);
-
     const result = await api.postBulkEvaluateFlags({
       context: {
         email: 'user@openfeature.dev',
