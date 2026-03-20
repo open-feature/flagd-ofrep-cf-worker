@@ -27,7 +27,8 @@ export interface OfrepBulkEvaluationRequest {
  */
 export interface OfrepEvaluationSuccess {
   key: string;
-  value: JsonValue;
+  // OFREP may omit value to indicate the provider should use the code default.
+  value?: JsonValue;
   reason: OfrepReason;
   variant?: string;
   metadata?: Record<string, JsonValue>;
