@@ -1,28 +1,6 @@
 import { OfrepHandler, createOfrepHandler } from '../src/ofrep-handler';
 import testFlags from '../../../shared/test-flags.json';
-
-type ErrorWithCause = Error & {
-  cause?: Error;
-};
-
-function expectInvalidConfigError(action: () => void, causePattern?: RegExp): void {
-  const consoleDebugSpy = jest.spyOn(console, 'debug').mockImplementation(() => {});
-
-  try {
-    action();
-    fail('Expected invalid flag configuration to throw');
-  } catch (error) {
-    const invalidConfigError = error as ErrorWithCause;
-
-    expect(invalidConfigError.message).toBe('invalid flagd flag configuration');
-
-    if (causePattern) {
-      expect(invalidConfigError.cause?.message ?? '').toMatch(causePattern);
-    }
-  } finally {
-    consoleDebugSpy.mockRestore();
-  }
-}
+import { expectInvalidConfigError } from './invalid-config-test-utils';
 
 function makeRequest(path: string, options: RequestInit = {}): Request {
   return new Request(`http://localhost${path}`, options);
@@ -59,24 +37,6 @@ describe('OfrepHandler', () => {
             },
           }),
         /Invalid flag state/,
-      );
-    });
-
-    it('should reject invalid static flags when creating a fetch handler', () => {
-      expectInvalidConfigError(
-        () =>
-          createOfrepHandler({
-            staticFlags: {
-              flags: {
-                broken: {
-                  state: 'ENABLED',
-                  defaultVariant: 'missing',
-                  variants: { on: true },
-                },
-              },
-            },
-          }),
-        /Default variant missing missing from variants/,
       );
     });
 

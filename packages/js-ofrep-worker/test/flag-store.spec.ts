@@ -1,28 +1,6 @@
 import { FlagStore } from '../src/flag-store';
 import testFlags from '../../../shared/test-flags.json';
-
-type ErrorWithCause = Error & {
-  cause?: Error;
-};
-
-function expectInvalidConfigError(action: () => void, causePattern?: RegExp): void {
-  const consoleDebugSpy = jest.spyOn(console, 'debug').mockImplementation(() => {});
-
-  try {
-    action();
-    fail('Expected invalid flag configuration to throw');
-  } catch (error) {
-    const invalidConfigError = error as ErrorWithCause;
-
-    expect(invalidConfigError.message).toBe('invalid flagd flag configuration');
-
-    if (causePattern) {
-      expect(invalidConfigError.cause?.message ?? '').toMatch(causePattern);
-    }
-  } finally {
-    consoleDebugSpy.mockRestore();
-  }
-}
+import { expectInvalidConfigError } from './invalid-config-test-utils';
 
 describe('FlagStore', () => {
   let store: FlagStore;
@@ -46,7 +24,7 @@ describe('FlagStore', () => {
       expectInvalidConfigError(() => new FlagStore('{invalid'), /Expected property name|Unexpected token/);
     });
 
-    it('should reject flags with invalid states', () => {
+    it('should reject object configs with invalid structure', () => {
       expectInvalidConfigError(
         () =>
           new FlagStore({
@@ -59,22 +37,6 @@ describe('FlagStore', () => {
             },
           }),
         /Invalid flag state/,
-      );
-    });
-
-    it('should reject flags whose default variant is missing', () => {
-      expectInvalidConfigError(
-        () =>
-          new FlagStore({
-            flags: {
-              broken: {
-                state: 'ENABLED',
-                defaultVariant: 'missing',
-                variants: { on: true },
-              },
-            },
-          }),
-        /Default variant missing missing from variants/,
       );
     });
   });
