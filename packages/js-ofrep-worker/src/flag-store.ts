@@ -218,8 +218,20 @@ export class FlagStore {
    * Resolve all configured flags, including code-default deferrals.
    */
   resolveAll(context: EvaluationContext = {}): EvaluationDetails[] {
-    return this.getFlagKeys().map((flagKey) => {
-      const result = this.resolveValue(flagKey, context);
+    return Array.from(this.core.getFlags(), ([flagKey, flag]) => {
+      if (flag.state === 'DISABLED') {
+        return {
+          flagKey,
+          value: undefined,
+          variant: undefined,
+          reason: StandardResolutionReasons.DISABLED,
+          errorCode: undefined,
+          errorMessage: undefined,
+          flagMetadata: this.mergeFlagMetadata(flag.metadata),
+        };
+      }
+
+      const result = flag.evaluate(context);
       return {
         flagKey,
         value: result.value,
