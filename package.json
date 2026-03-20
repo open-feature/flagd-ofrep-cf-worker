@@ -9,6 +9,7 @@
   "scripts": {
     "build": "npm run build --workspaces --if-present",
     "test": "jest",
+    "test:smoke:release": "node ./scripts/release-smoke-test.js",
     "test:smoke:worker": "npm run smoke --workspace=js-worker-example",
     "lint": "npm run lint --workspaces --if-present",
     "format": "prettier --check .",
