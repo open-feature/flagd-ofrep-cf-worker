@@ -203,7 +203,7 @@ export class OfrepHandler {
     // Success response
     const response: OfrepEvaluationSuccess = {
       key: flagKey,
-      value: result.value as JsonValue,
+      value: result.value,
       reason: toOfrepReason(result.reason),
       variant: result.variant,
       metadata: result.flagMetadata as Record<string, JsonValue> | undefined,
@@ -249,7 +249,7 @@ export class OfrepHandler {
 
       return {
         key: evaluation.flagKey,
-        value: evaluation.value as JsonValue,
+        value: evaluation.value,
         reason: toOfrepReason(evaluation.reason),
         variant: evaluation.variant,
         metadata: evaluation.flagMetadata as Record<string, JsonValue> | undefined,
