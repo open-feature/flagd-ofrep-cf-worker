@@ -1,5 +1,6 @@
 import { FlagStore } from '../src/flag-store';
 import testFlags from '../../../shared/test-flags.json';
+import { expectInvalidConfigError } from './invalid-config-test-utils';
 
 describe('FlagStore', () => {
   let store: FlagStore;
@@ -17,6 +18,26 @@ describe('FlagStore', () => {
     it('should accept a JSON string', () => {
       const s = new FlagStore(JSON.stringify(testFlags));
       expect(s.getFlagKeys().length).toBeGreaterThan(0);
+    });
+
+    it('should reject malformed JSON strings', () => {
+      expectInvalidConfigError(() => new FlagStore('{invalid'), /Expected property name|Unexpected token/);
+    });
+
+    it('should reject object configs with invalid structure', () => {
+      expectInvalidConfigError(
+        () =>
+          new FlagStore({
+            flags: {
+              broken: {
+                state: 'BROKEN',
+                defaultVariant: 'on',
+                variants: { on: true },
+              },
+            },
+          }),
+        /Invalid flag state/,
+      );
     });
   });
 
@@ -67,6 +88,26 @@ describe('FlagStore', () => {
 
       expect(store.hasFlag('new-flag')).toBe(true);
       expect(store.hasFlag('simple-boolean')).toBe(false);
+    });
+
+    it('should preserve the last valid configuration when an update is invalid', () => {
+      expect(store.hasFlag('simple-boolean')).toBe(true);
+
+      expectInvalidConfigError(
+        () =>
+          store.setFlags({
+            flags: {
+              broken: {
+                state: 'ENABLED',
+                defaultVariant: 'on',
+              },
+            },
+          }),
+        /Cannot convert undefined or null to object/,
+      );
+
+      expect(store.hasFlag('simple-boolean')).toBe(true);
+      expect(store.hasFlag('broken')).toBe(false);
     });
   });
 
