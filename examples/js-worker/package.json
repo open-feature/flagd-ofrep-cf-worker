@@ -8,6 +8,8 @@
     "predev": "npm run build --workspace=@openfeature/flagd-ofrep-cf-worker",
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
+    "presmoke": "npm run build --workspace=@openfeature/flagd-ofrep-cf-worker",
+    "smoke": "wrangler deploy --dry-run",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
