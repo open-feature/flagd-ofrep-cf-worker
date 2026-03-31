@@ -5,3 +5,4 @@ package-lock.json
 contrib/
 *.log
 .opencode/
+CHANGELOG.md
