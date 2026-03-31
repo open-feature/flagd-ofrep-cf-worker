@@ -23,7 +23,7 @@
     "build": "tsup",
     "dev": "tsup --watch",
     "typecheck": "tsc --noEmit",
-    "lint": "eslint src test --ext .ts",
+    "lint": "eslint src test",
     "test": "jest --config ../../jest.config.ts --selectProjects=js-ofrep-worker"
   },
   "keywords": [
