@@ -14,9 +14,11 @@
   },
   "files": [
     "dist",
-    "README.md"
+    "README.md",
+    "LICENSE"
   ],
   "scripts": {
+    "prepack": "shx cp ../../LICENSE ./LICENSE",
     "build": "tsup",
     "dev": "tsup --watch",
     "typecheck": "tsc --noEmit",
