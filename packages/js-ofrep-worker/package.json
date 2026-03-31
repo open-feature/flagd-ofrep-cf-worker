@@ -24,7 +24,7 @@
     "dev": "tsup --watch",
     "typecheck": "tsc --noEmit",
     "lint": "eslint src test",
-    "test": "jest --config ../../jest.config.ts --selectProjects=js-ofrep-worker"
+    "test": "vitest run --config ../../vitest.config.ts"
   },
   "keywords": [
     "openfeature",
