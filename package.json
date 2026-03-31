@@ -33,7 +33,7 @@
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/open-feature/flagd-ofrep-cf-worker.git"
+    "url": "git+https://github.com/open-feature/flagd-ofrep-cf-worker.git"
   },
   "devDependencies": {
     "@openfeature/ofrep-core": "^2.0.0",
