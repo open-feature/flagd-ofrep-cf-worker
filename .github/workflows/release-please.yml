@@ -1,0 +1,73 @@
+on:
+  push:
+    branches:
+      - main
+
+name: Run Release Please
+
+permissions:
+  contents: read
+
+jobs:
+  release-please:
+    permissions:
+      contents: write
+      pull-requests: write
+    runs-on: ubuntu-latest
+    steps:
+      - uses: googleapis/release-please-action@v4
+        id: release
+        with:
+          token: ${{ secrets.RELEASE_PLEASE_ACTION_TOKEN }}
+    outputs:
+      release_created: ${{ steps.release.outputs['packages/js-ofrep-worker--release_created'] }}
+      release_tag_name: ${{ steps.release.outputs['packages/js-ofrep-worker--tag_name'] }}
+
+  npm-release:
+    needs: release-please
+    runs-on: ubuntu-latest
+    if: ${{ fromJSON(needs.release-please.outputs.release_created || 'false') }}
+    environment: publish
+    permissions:
+      id-token: write
+      attestations: write
+      contents: write
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v5
+
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          registry-url: 'https://registry.npmjs.org'
+          cache: 'npm'
+
+      - name: Update npm to >=11.5.1 (for OIDC support)
+        run: npm install -g npm@^11.5.1
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build package
+        run: npm run build
+
+      - name: Generate SBOM
+        run: npm sbom --sbom-format=cyclonedx --omit=dev --omit=peer --workspace=packages/js-ofrep-worker > sbom.json
+
+      - name: Attest SBOM
+        uses: actions/attest-sbom@v3
+        with:
+          subject-path: packages/js-ofrep-worker/package.json
+          sbom-path: ./sbom.json
+
+      - name: Publish to npm
+        working-directory: packages/js-ofrep-worker
+        run: |
+          PACKAGE_NAME=$(node -p "require('./package.json').name")
+          VERSION=$(node -p "require('./package.json').version")
+          if npm view "$PACKAGE_NAME@$VERSION" > /dev/null 2>&1; then
+            echo "$PACKAGE_NAME@$VERSION already published"
+          else
+            npm publish --provenance --access public
+          fi
