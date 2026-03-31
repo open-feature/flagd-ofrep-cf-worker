@@ -3,11 +3,11 @@ type ErrorWithCause = Error & {
 };
 
 export function expectInvalidConfigError(action: () => void, causePattern?: RegExp): void {
-  const consoleDebugSpy = jest.spyOn(console, 'debug').mockImplementation(() => {});
+  const consoleDebugSpy = vi.spyOn(console, 'debug').mockImplementation(() => {});
 
   try {
     action();
-    fail('Expected invalid flag configuration to throw');
+    throw new Error('Expected invalid flag configuration to throw');
   } catch (error) {
     const invalidConfigError = error as ErrorWithCause;
 
