@@ -19,6 +19,7 @@
   ],
   "scripts": {
     "prepack": "shx cp ../../LICENSE ./LICENSE",
+    "postpack": "shx rm ./LICENSE",
     "build": "tsup",
     "dev": "tsup --watch",
     "typecheck": "tsc --noEmit",
