@@ -9,7 +9,7 @@
   "scripts": {
     "build": "npm run build --workspaces --if-present",
     "test": "vitest run",
-    "test:worker": "npm run test --workspace=examples/js-worker",
+    "test:worker": "npm run test --workspace=js-worker-example",
     "test:smoke:worker": "npm run smoke --workspace=js-worker-example",
     "lint": "npm run lint --workspaces --if-present",
     "format": "prettier --check .",

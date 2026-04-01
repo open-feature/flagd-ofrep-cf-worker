@@ -12,7 +12,7 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'node',
-    include: ['packages/js-ofrep-worker/test/**/*.spec.ts'],
+    include: ['packages/*/test/**/*.spec.ts'],
     coverage: {
       provider: 'v8',
       include: ['packages/*/src/**/*.ts'],
