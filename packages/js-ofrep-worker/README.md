@@ -1,5 +1,9 @@
 # @openfeature/flagd-ofrep-cf-worker
 
+[![npm version](https://img.shields.io/npm/v/@openfeature/flagd-ofrep-cf-worker)](https://www.npmjs.com/package/@openfeature/flagd-ofrep-cf-worker)
+[![license](https://img.shields.io/npm/l/@openfeature/flagd-ofrep-cf-worker)](https://github.com/open-feature/flagd-ofrep-cf-worker/blob/main/LICENSE)
+[![CI](https://github.com/open-feature/flagd-ofrep-cf-worker/actions/workflows/ci.yml/badge.svg)](https://github.com/open-feature/flagd-ofrep-cf-worker/actions/workflows/ci.yml)
+
 Cloudflare Workers package for evaluating [flagd](https://flagd.dev/) flags in-process and serving [OFREP](https://github.com/open-feature/protocol) evaluation endpoints.
 
 ## Installation
@@ -69,7 +73,7 @@ The package also exports OFREP request/response types plus selected types from `
 
 ## Compatibility
 
-This package is designed for Cloudflare Workers and uses the released `@openfeature/flagd-core@1.3.0+` package with `disableDynamicCodeGeneration: true` so it avoids runtime code generation paths that are not allowed in the Workers runtime.
+This package is designed for Cloudflare Workers and uses `@openfeature/flagd-core@^2.0.0` with `disableDynamicCodeGeneration: true` so it avoids runtime code generation paths that are not allowed in the Workers runtime.
 
 It supports the flagd features exercised by this repo's package and example worker, including JSONLogic targeting, fractional evaluation, semantic version comparison, string operators, metadata, and shared evaluators.
 

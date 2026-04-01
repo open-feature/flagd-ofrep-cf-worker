@@ -6,6 +6,7 @@ This repository contains a reusable Cloudflare Workers package for in-process [f
 
 ## Repository Guide
 
+- npm: [`@openfeature/flagd-ofrep-cf-worker`](https://www.npmjs.com/package/@openfeature/flagd-ofrep-cf-worker)
 - Package docs: [`packages/js-ofrep-worker/README.md`](packages/js-ofrep-worker/README.md)
 - Example worker: [`examples/js-worker`](examples/js-worker)
 - Shared test fixtures: [`shared/test-flags.json`](shared/test-flags.json)
@@ -61,7 +62,7 @@ The repo has two similar flag sets for different purposes:
 
 ## Workers Compatibility
 
-`@openfeature/flagd-core@1.3.0` and later support Cloudflare Workers and other V8 isolate runtimes without relying on dynamic code generation. This repo consumes the released package directly and uses `disableDynamicCodeGeneration: true` so targeting rules stay compatible with Workers runtime restrictions. The upstream work landed through [open-feature/js-sdk-contrib#1480](https://github.com/open-feature/js-sdk-contrib/issues/1480).
+`@openfeature/flagd-core@^2.0.0` supports Cloudflare Workers and other V8 isolate runtimes without relying on dynamic code generation. This repo consumes the released package directly and uses `disableDynamicCodeGeneration: true` so targeting rules stay compatible with Workers runtime restrictions. The upstream work landed through [open-feature/js-sdk-contrib#1480](https://github.com/open-feature/js-sdk-contrib/issues/1480).
 
 ## License
 
