@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.0.3](https://github.com/open-feature/flagd-ofrep-cf-worker/compare/flagd-ofrep-cf-worker-v0.0.2...flagd-ofrep-cf-worker-v0.0.3) (2026-04-01)
+
+
+### 🧹 Chore
+
+* remove stale stash directory and unused type dependencies ([#28](https://github.com/open-feature/flagd-ofrep-cf-worker/issues/28)) ([68b884a](https://github.com/open-feature/flagd-ofrep-cf-worker/commit/68b884a63cd21eebbed63a6ab8eeb572d187def4))
+
+
+### 📚 Documentation
+
+* add npm badges and update flagd-core version references ([#26](https://github.com/open-feature/flagd-ofrep-cf-worker/issues/26)) ([dc6d70b](https://github.com/open-feature/flagd-ofrep-cf-worker/commit/dc6d70b2994a42bf09e31081b6d3248b79a0c812))
+
+
+### 🔄 Refactoring
+
+* replace jest with vitest ([#24](https://github.com/open-feature/flagd-ofrep-cf-worker/issues/24)) ([89e5657](https://github.com/open-feature/flagd-ofrep-cf-worker/commit/89e5657a909ead803feed780a47f089c3b5ebda5))
+
 ## [0.0.2](https://github.com/open-feature/flagd-ofrep-cf-worker/compare/flagd-ofrep-cf-worker-v0.0.1...flagd-ofrep-cf-worker-v0.0.2) (2026-03-31)
 
 
