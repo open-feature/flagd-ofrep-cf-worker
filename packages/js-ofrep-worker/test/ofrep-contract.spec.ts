@@ -28,7 +28,7 @@ describe('OFREP contract', () => {
   let api: OFREPApi;
 
   beforeEach(() => {
-    jest.useFakeTimers();
+    vi.useFakeTimers();
     handler = new OfrepHandler({ staticFlags: testFlags });
     fetchImplementation = createFetchImplementation(handler);
     provider = new OFREPProvider({ baseUrl, fetchImplementation });
@@ -36,8 +36,8 @@ describe('OFREP contract', () => {
   });
 
   afterEach(() => {
-    jest.runOnlyPendingTimers();
-    jest.useRealTimers();
+    vi.runOnlyPendingTimers();
+    vi.useRealTimers();
   });
 
   it('supports single-flag evaluation through the upstream OFREP provider', async () => {

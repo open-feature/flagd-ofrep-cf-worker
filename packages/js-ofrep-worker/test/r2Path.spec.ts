@@ -1,14 +1,15 @@
+import type { Mock } from 'vitest';
 import worker from '../../../examples/js-worker/src/index';
 
 type MockCache = {
-  match: jest.Mock<Promise<Response | undefined>, [Request]>;
-  put: jest.Mock<Promise<void>, [Request, Response]>;
+  match: Mock<(request: Request) => Promise<Response | undefined>>;
+  put: Mock<(request: Request, response: Response) => Promise<void>>;
 };
 
 function installMockCache(): MockCache {
   const cache: MockCache = {
-    match: jest.fn().mockResolvedValue(undefined),
-    put: jest.fn().mockResolvedValue(undefined),
+    match: vi.fn().mockResolvedValue(undefined),
+    put: vi.fn().mockResolvedValue(undefined),
   };
 
   Object.defineProperty(globalThis, 'caches', {
@@ -21,8 +22,8 @@ function installMockCache(): MockCache {
 
 function makeWorkerExecutionContext(): ExecutionContext {
   return {
-    waitUntil: jest.fn(),
-    passThroughOnException: jest.fn(),
+    waitUntil: vi.fn(),
+    passThroughOnException: vi.fn(),
   } as unknown as ExecutionContext;
 }
 
@@ -52,7 +53,7 @@ describe('R2-backed OFREP path', () => {
   });
 
   afterEach(() => {
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   it('handles OFREP preflight requests before auth or R2 access', async () => {
@@ -70,7 +71,7 @@ describe('R2-backed OFREP path', () => {
 
   it('returns auth failures with CORS headers', async () => {
     const bucket = {
-      get: jest.fn(),
+      get: vi.fn(),
     } as unknown as R2Bucket;
 
     const response = await worker.fetch(makeOfrepRequest(), makeR2Env(bucket), makeWorkerExecutionContext());
@@ -82,7 +83,7 @@ describe('R2-backed OFREP path', () => {
 
   it('returns missing config failures with CORS headers', async () => {
     const bucket = {
-      get: jest.fn().mockResolvedValue(null),
+      get: vi.fn().mockResolvedValue(null),
     } as unknown as R2Bucket;
 
     const response = await worker.fetch(
@@ -98,9 +99,9 @@ describe('R2-backed OFREP path', () => {
   });
 
   it('returns R2 failures with CORS headers', async () => {
-    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     const bucket = {
-      get: jest.fn().mockRejectedValue(new Error('boom')),
+      get: vi.fn().mockRejectedValue(new Error('boom')),
     } as unknown as R2Bucket;
 
     const response = await worker.fetch(
