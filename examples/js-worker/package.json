@@ -10,6 +10,7 @@
     "deploy": "wrangler deploy",
     "presmoke": "npm run build --workspace=@openfeature/flagd-ofrep-cf-worker",
     "smoke": "wrangler deploy --dry-run",
+    "pretest": "npm run build --workspace=@openfeature/flagd-ofrep-cf-worker",
     "test": "vitest run",
     "typecheck": "tsc --noEmit"
   },
