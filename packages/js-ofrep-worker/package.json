@@ -44,7 +44,7 @@
   },
   "dependencies": {
     "@openfeature/core": "^1.9.1",
-    "@openfeature/flagd-core": "^2.0.0"
+    "@openfeature/flagd-core": "^3.0.0"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20260127.0",
