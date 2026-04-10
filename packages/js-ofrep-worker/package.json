@@ -1,6 +1,6 @@
 {
   "name": "@openfeature/flagd-ofrep-cf-worker",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "flagd OFREP handler for Cloudflare Workers - in-process flag evaluation using the flagd evaluation engine",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
