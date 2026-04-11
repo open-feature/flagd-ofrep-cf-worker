@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.0.4](https://github.com/open-feature/flagd-ofrep-cf-worker/compare/flagd-ofrep-cf-worker-v0.0.3...flagd-ofrep-cf-worker-v0.0.4) (2026-04-10)
+
+
+### 🧹 Chore
+
+* **deps:** update dependency @openfeature/flagd-core to v3 ([#31](https://github.com/open-feature/flagd-ofrep-cf-worker/issues/31)) ([a9d6a04](https://github.com/open-feature/flagd-ofrep-cf-worker/commit/a9d6a04964a55a1ff9de8a40a436ce58e4ecaeb7))
+
 ## [0.0.3](https://github.com/open-feature/flagd-ofrep-cf-worker/compare/flagd-ofrep-cf-worker-v0.0.2...flagd-ofrep-cf-worker-v0.0.3) (2026-04-01)
 
 
