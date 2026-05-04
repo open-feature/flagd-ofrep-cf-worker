@@ -16,10 +16,10 @@
   },
   "dependencies": {
     "@openfeature/flagd-ofrep-cf-worker": "*",
-    "hono": "^4.12.5"
+    "hono": "^4.12.14"
   },
   "devDependencies": {
-    "@cloudflare/vitest-pool-workers": "^0.14.0",
+    "@cloudflare/vitest-pool-workers": "^0.15.1",
     "@cloudflare/workers-types": "^4.20260127.0",
     "typescript": "^5.7.0",
     "wrangler": "^4.61.0"
