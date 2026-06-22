@@ -53,5 +53,10 @@
   },
   "optionalDependencies": {
     "@rollup/rollup-linux-x64-gnu": "^4.56.0"
+  },
+  "overrides": {
+    "miniflare": {
+      "undici": "7.28.0"
+    }
   }
 }
