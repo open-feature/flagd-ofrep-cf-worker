@@ -55,6 +55,6 @@
     "@rollup/rollup-linux-x64-gnu": "^4.56.0"
   },
   "overrides": {
-    "undici": ">=7.28.0"
+    "undici": "7.28.0"
   }
 }
