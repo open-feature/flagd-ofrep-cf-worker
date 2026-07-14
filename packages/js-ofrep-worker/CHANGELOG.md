@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.0.5](https://github.com/open-feature/flagd-ofrep-cf-worker/compare/flagd-ofrep-cf-worker-v0.0.4...flagd-ofrep-cf-worker-v0.0.5) (2026-07-14)
+
+
+### ✨ New Features
+
+* Support ADR-0008 for SSE eventstreams ([#39](https://github.com/open-feature/flagd-ofrep-cf-worker/issues/39)) ([c94e540](https://github.com/open-feature/flagd-ofrep-cf-worker/commit/c94e54098058c7a59644afeb5f03ac453e2cb3ef))
+
 ## [0.0.4](https://github.com/open-feature/flagd-ofrep-cf-worker/compare/flagd-ofrep-cf-worker-v0.0.3...flagd-ofrep-cf-worker-v0.0.4) (2026-04-10)
 
 
