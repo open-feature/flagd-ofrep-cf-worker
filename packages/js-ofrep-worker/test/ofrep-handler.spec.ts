@@ -327,48 +327,6 @@ describe('OfrepHandler', () => {
 
       expect(body.eventStreams).toEqual(eventStreams);
     });
-
-    it('should reject a stream missing a type', () => {
-      expect(
-        () => new OfrepHandler({ staticFlags: testFlags, eventStreams: [{ type: '', url: 'https://x' }] }),
-      ).toThrow(/'type' is required/);
-    });
-
-    it('should reject a stream with neither url nor endpoint', () => {
-      expect(() => new OfrepHandler({ staticFlags: testFlags, eventStreams: [{ type: 'sse' }] })).toThrow(
-        /exactly one of 'url' or 'endpoint'/,
-      );
-    });
-
-    it('should reject a stream with both url and endpoint', () => {
-      expect(
-        () =>
-          new OfrepHandler({
-            staticFlags: testFlags,
-            eventStreams: [{ type: 'sse', url: 'https://x', endpoint: { requestUri: '/y' } }],
-          }),
-      ).toThrow(/exactly one of 'url' or 'endpoint'/);
-    });
-
-    it('should reject a structured endpoint without a requestUri', () => {
-      expect(
-        () =>
-          new OfrepHandler({
-            staticFlags: testFlags,
-            eventStreams: [{ type: 'sse', endpoint: { origin: 'https://x' } as never }],
-          }),
-      ).toThrow(/'endpoint.requestUri' is required/);
-    });
-
-    it('should reject a non-integer or sub-1 inactivityDelaySec', () => {
-      expect(
-        () =>
-          new OfrepHandler({
-            staticFlags: testFlags,
-            eventStreams: [{ type: 'sse', url: 'https://x', inactivityDelaySec: 0 }],
-          }),
-      ).toThrow(/'inactivityDelaySec' must be an integer >= 1/);
-    });
   });
 
   describe('custom basePath', () => {

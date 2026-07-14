@@ -134,11 +134,9 @@ export interface OfrepHandlerOptions {
 }
 
 /**
- * An event stream endpoint advertised in the bulk evaluation response, per OFREP ADR-0008.
- *
- * Exactly one of `url` or `endpoint` must be provided; they are mutually exclusive.
+ * Fields common to every event stream advertised in the bulk evaluation response.
  */
-export interface EventStream {
+interface EventStreamBase {
   /**
    * Type of the event stream. Currently only `'sse'` is defined by the ADR;
    * clients must ignore unknown types.
@@ -146,22 +144,42 @@ export interface EventStream {
   type: string;
 
   /**
-   * Opaque connection URL for the stream. May contain auth tokens or vendor
-   * parameters. Mutually exclusive with `endpoint`.
-   */
-  url?: string;
-
-  /**
-   * Structured connection endpoint. Mutually exclusive with `url`.
-   */
-  endpoint?: EventStreamEndpoint;
-
-  /**
    * Seconds of inactivity before clients should close the connection.
    * Minimum 1; clients default to 120 when omitted.
    */
   inactivityDelaySec?: number;
 }
+
+/**
+ * An event stream addressed by a single opaque `url`.
+ * The `endpoint?: never` makes `url` and `endpoint` mutually exclusive at compile time.
+ */
+export interface EventStreamWithUrl extends EventStreamBase {
+  /**
+   * Opaque connection URL for the stream. May contain auth tokens or vendor parameters.
+   */
+  url: string;
+  endpoint?: never;
+}
+
+/**
+ * An event stream addressed by a structured `endpoint`.
+ * The `url?: never` makes `url` and `endpoint` mutually exclusive at compile time.
+ */
+export interface EventStreamWithEndpoint extends EventStreamBase {
+  /**
+   * Structured connection endpoint.
+   */
+  endpoint: EventStreamEndpoint;
+  url?: never;
+}
+
+/**
+ * An event stream endpoint advertised in the bulk evaluation response, per OFREP ADR-0008.
+ *
+ * Exactly one of `url` or `endpoint` must be provided; the union enforces this at compile time.
+ */
+export type EventStream = EventStreamWithUrl | EventStreamWithEndpoint;
 
 /**
  * Structured event stream endpoint, used as an alternative to a single opaque `url`.
