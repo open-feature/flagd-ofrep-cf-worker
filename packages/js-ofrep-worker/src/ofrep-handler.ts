@@ -11,6 +11,7 @@ import {
   type OfrepBulkEvaluationSuccess,
   type OfrepReason,
   type OfrepErrorCode,
+  type EventStream,
 } from './types';
 
 /**
@@ -91,12 +92,14 @@ export class OfrepHandler {
   private readonly basePath: string;
   private readonly cors: boolean;
   private readonly corsOrigin: string;
+  private readonly eventStreams?: EventStream[];
 
   constructor(options: OfrepHandlerOptions) {
     this.store = new FlagStore(options.staticFlags);
     this.basePath = options.basePath || '/ofrep/v1';
     this.cors = options.cors ?? false;
     this.corsOrigin = options.corsOrigin || '*';
+    this.eventStreams = options.eventStreams;
   }
 
   /**
@@ -260,6 +263,10 @@ export class OfrepHandler {
       flags,
       metadata: this.store.getMetadata() as Record<string, JsonValue>,
     };
+
+    if (this.eventStreams && this.eventStreams.length > 0) {
+      response.eventStreams = this.eventStreams;
+    }
 
     // TODO: Implement ETag for caching
     return jsonResponse(response, 200, { cors: this.cors, corsOrigin: this.corsOrigin });
