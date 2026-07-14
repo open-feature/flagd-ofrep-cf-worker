@@ -127,8 +127,23 @@ export interface OfrepHandlerOptions {
   /**
    * Event streams advertised to clients for real-time flag change notifications.
    * Merged into the bulk evaluation endpoint response if provided.
-   *
+   * NOTE: The URLs/requestURI's may contain auth tokens or channel credentials -- and any implementations must not log or persist the full value including query string.
    * @see https://github.com/open-feature/protocol/blob/main/service/adrs/0008-sse-for-bulk-evaluation-changes.md
+   * Example:
+   * "eventStreams": [
+   *     {
+   *       "type": "sse",
+   *       "url": "https://sse.example.com/event-stream?channels=env_abc123_v1",
+   *       "inactivityDelaySec": 120
+   *     },
+   *     {
+   *       "type": "sse",
+   *       "endpoint": {
+   *         "origin": "https://sse.example.com",
+   *         "requestUri": "/event-stream?channels=env_abc123_v1"
+   *       }
+   *     }
+   *   ]
    */
   eventStreams?: EventStream[];
 }
@@ -190,7 +205,7 @@ export interface EventStreamEndpoint {
    */
   origin?: string;
   /**
-   * Request URI to append to the connection origin.
+   * Request URI to append to the connection origin. Note. This may contain credentials or secure query parameters, so clients must not log it.
    */
   requestUri: string;
 }
