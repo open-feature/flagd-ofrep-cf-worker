@@ -11,6 +11,7 @@ import {
   type OfrepBulkEvaluationSuccess,
   type OfrepReason,
   type OfrepErrorCode,
+  type EventStream,
 } from './types';
 
 /**
@@ -83,6 +84,45 @@ function jsonResponse(data: unknown, status: number, options: { cors?: boolean; 
 }
 
 /**
+ * Validate the configured event streams against OFREP ADR-0008.
+ *
+ * Each stream must declare a `type` and provide exactly one of `url` or `endpoint`.
+ * A structured `endpoint` requires a `requestUri`, and `inactivityDelaySec`, when set,
+ * must be an integer >= 1. Misconfiguration throws at construction time so it surfaces
+ * at deploy rather than in client responses.
+ */
+function validateEventStreams(eventStreams?: EventStream[]): void {
+  if (!eventStreams) {
+    return;
+  }
+
+  eventStreams.forEach((stream, index) => {
+    const prefix = `eventStreams[${index}]`;
+
+    if (!stream.type) {
+      throw new Error(`${prefix}: 'type' is required`);
+    }
+
+    const hasUrl = stream.url !== undefined;
+    const hasEndpoint = stream.endpoint !== undefined;
+    if (hasUrl === hasEndpoint) {
+      throw new Error(`${prefix}: exactly one of 'url' or 'endpoint' must be provided`);
+    }
+
+    if (hasEndpoint && !stream.endpoint?.requestUri) {
+      throw new Error(`${prefix}: 'endpoint.requestUri' is required`);
+    }
+
+    if (
+      stream.inactivityDelaySec !== undefined &&
+      (!Number.isInteger(stream.inactivityDelaySec) || stream.inactivityDelaySec < 1)
+    ) {
+      throw new Error(`${prefix}: 'inactivityDelaySec' must be an integer >= 1`);
+    }
+  });
+}
+
+/**
  * OFREP request handler for Cloudflare Workers.
  * Handles OFREP API endpoints for flag evaluation.
  */
@@ -91,12 +131,16 @@ export class OfrepHandler {
   private readonly basePath: string;
   private readonly cors: boolean;
   private readonly corsOrigin: string;
+  private readonly eventStreams?: EventStream[];
 
   constructor(options: OfrepHandlerOptions) {
     this.store = new FlagStore(options.staticFlags);
     this.basePath = options.basePath || '/ofrep/v1';
     this.cors = options.cors ?? false;
     this.corsOrigin = options.corsOrigin || '*';
+    this.eventStreams = options.eventStreams;
+
+    validateEventStreams(this.eventStreams);
   }
 
   /**
@@ -260,6 +304,10 @@ export class OfrepHandler {
       flags,
       metadata: this.store.getMetadata() as Record<string, JsonValue>,
     };
+
+    if (this.eventStreams && this.eventStreams.length > 0) {
+      response.eventStreams = this.eventStreams;
+    }
 
     // TODO: Implement ETag for caching
     return jsonResponse(response, 200, { cors: this.cors, corsOrigin: this.corsOrigin });

@@ -1,4 +1,4 @@
-import { OfrepHandler, createOfrepHandler } from '../src/ofrep-handler';
+import { OfrepHandler, createOfrepHandler } from '../src';
 import testFlags from '../../../shared/test-flags.json';
 import { expectInvalidConfigError } from './invalid-config-test-utils';
 
@@ -280,6 +280,94 @@ describe('OfrepHandler', () => {
           version: '1.0.0',
         },
       });
+    });
+  });
+
+  describe('event streams (ADR-0008)', () => {
+    it('should omit eventStreams from the bulk response when not configured', async () => {
+      const request = postJson('/ofrep/v1/evaluate/flags', {});
+      const response = await handler.handleRequest(request);
+      const body = await response.json();
+
+      expect(body.eventStreams).toBeUndefined();
+    });
+
+    it('should include configured eventStreams in the bulk response', async () => {
+      const eventStreams = [
+        {
+          type: 'sse',
+          url: 'https://sse.example.com/event-stream?channels=env_abc123_v1',
+          inactivityDelaySec: 120,
+        },
+      ];
+      const streamHandler = new OfrepHandler({ staticFlags: testFlags, eventStreams });
+
+      const request = postJson('/ofrep/v1/evaluate/flags', {});
+      const response = await streamHandler.handleRequest(request);
+      const body = await response.json();
+
+      expect(body.eventStreams).toEqual(eventStreams);
+    });
+
+    it('should support the structured endpoint form', async () => {
+      const eventStreams = [
+        {
+          type: 'sse',
+          endpoint: {
+            origin: 'https://sse.example.com',
+            requestUri: '/event-stream?channels=env_abc123_v1',
+          },
+        },
+      ];
+      const streamHandler = new OfrepHandler({ staticFlags: testFlags, eventStreams });
+
+      const request = postJson('/ofrep/v1/evaluate/flags', {});
+      const response = await streamHandler.handleRequest(request);
+      const body = await response.json();
+
+      expect(body.eventStreams).toEqual(eventStreams);
+    });
+
+    it('should reject a stream missing a type', () => {
+      expect(
+        () => new OfrepHandler({ staticFlags: testFlags, eventStreams: [{ type: '', url: 'https://x' }] }),
+      ).toThrow(/'type' is required/);
+    });
+
+    it('should reject a stream with neither url nor endpoint', () => {
+      expect(() => new OfrepHandler({ staticFlags: testFlags, eventStreams: [{ type: 'sse' }] })).toThrow(
+        /exactly one of 'url' or 'endpoint'/,
+      );
+    });
+
+    it('should reject a stream with both url and endpoint', () => {
+      expect(
+        () =>
+          new OfrepHandler({
+            staticFlags: testFlags,
+            eventStreams: [{ type: 'sse', url: 'https://x', endpoint: { requestUri: '/y' } }],
+          }),
+      ).toThrow(/exactly one of 'url' or 'endpoint'/);
+    });
+
+    it('should reject a structured endpoint without a requestUri', () => {
+      expect(
+        () =>
+          new OfrepHandler({
+            staticFlags: testFlags,
+            eventStreams: [{ type: 'sse', endpoint: { origin: 'https://x' } as never }],
+          }),
+      ).toThrow(/'endpoint.requestUri' is required/);
+    });
+
+    it('should reject a non-integer or sub-1 inactivityDelaySec', () => {
+      expect(
+        () =>
+          new OfrepHandler({
+            staticFlags: testFlags,
+            eventStreams: [{ type: 'sse', url: 'https://x', inactivityDelaySec: 0 }],
+          }),
+      ).toThrow(/'inactivityDelaySec' must be an integer >= 1/);
     });
   });
 

@@ -23,6 +23,8 @@ export type {
   OfrepReason,
   OfrepErrorCode,
   OfrepHandlerOptions,
+  EventStream,
+  EventStreamEndpoint,
 } from './types';
 
 // Re-export useful types from dependencies

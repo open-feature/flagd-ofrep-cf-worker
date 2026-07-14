@@ -60,6 +60,7 @@ export interface OfrepFlagNotFound {
 export interface OfrepBulkEvaluationSuccess {
   flags: Array<OfrepEvaluationSuccess | OfrepEvaluationFailure>;
   metadata?: Record<string, JsonValue>;
+  eventStreams?: EventStream[];
 }
 
 /**
@@ -122,6 +123,58 @@ export interface OfrepHandlerOptions {
    * @default '*'
    */
   corsOrigin?: string;
+
+  /**
+   * Event streams advertised to clients for real-time flag change notifications.
+   * Merged into the bulk evaluation endpoint response if provided.
+   *
+   * @see https://github.com/open-feature/protocol/blob/main/service/adrs/0008-sse-for-bulk-evaluation-changes.md
+   */
+  eventStreams?: EventStream[];
+}
+
+/**
+ * An event stream endpoint advertised in the bulk evaluation response, per OFREP ADR-0008.
+ *
+ * Exactly one of `url` or `endpoint` must be provided; they are mutually exclusive.
+ */
+export interface EventStream {
+  /**
+   * Type of the event stream. Currently only `'sse'` is defined by the ADR;
+   * clients must ignore unknown types.
+   */
+  type: string;
+
+  /**
+   * Opaque connection URL for the stream. May contain auth tokens or vendor
+   * parameters. Mutually exclusive with `endpoint`.
+   */
+  url?: string;
+
+  /**
+   * Structured connection endpoint. Mutually exclusive with `url`.
+   */
+  endpoint?: EventStreamEndpoint;
+
+  /**
+   * Seconds of inactivity before clients should close the connection.
+   * Minimum 1; clients default to 120 when omitted.
+   */
+  inactivityDelaySec?: number;
+}
+
+/**
+ * Structured event stream endpoint, used as an alternative to a single opaque `url`.
+ */
+export interface EventStreamEndpoint {
+  /**
+   * Connection origin to connect to. If omitted, clients should default to the OFREP endpoint.
+   */
+  origin?: string;
+  /**
+   * Request URI to append to the connection origin.
+   */
+  requestUri: string;
 }
 
 /**
