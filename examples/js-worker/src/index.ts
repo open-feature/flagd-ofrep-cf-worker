@@ -1,4 +1,5 @@
 import { Hono } from 'hono';
+import type { ExecutionContext } from 'hono';
 import { cors } from 'hono/cors';
 import { OfrepHandler, extractAuthToken } from '@openfeature/flagd-ofrep-cf-worker';
 
