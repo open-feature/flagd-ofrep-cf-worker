@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.0.6](https://github.com/open-feature/flagd-ofrep-cf-worker/compare/flagd-ofrep-cf-worker-v0.0.5...flagd-ofrep-cf-worker-v0.0.6) (2026-08-24)
+
+
+### 🧹 Chore
+
+* resolve open dependabot security alerts ([#41](https://github.com/open-feature/flagd-ofrep-cf-worker/issues/41)) ([dfb12ce](https://github.com/open-feature/flagd-ofrep-cf-worker/commit/dfb12ce2597761790939226534792095dec2dc69))
+
 ## [0.0.5](https://github.com/open-feature/flagd-ofrep-cf-worker/compare/flagd-ofrep-cf-worker-v0.0.4...flagd-ofrep-cf-worker-v0.0.5) (2026-07-14)
 
 
