@@ -37,19 +37,19 @@
     "url": "git+https://github.com/open-feature/flagd-ofrep-cf-worker.git"
   },
   "devDependencies": {
-    "@eslint/js": "^10.0.1",
-    "@openfeature/ofrep-core": "^2.0.0",
-    "@openfeature/ofrep-provider": "^0.2.4",
-    "@openfeature/server-sdk": "^1.23.0",
-    "@types/node": "^24.12.0",
-    "@vitest/coverage-v8": "^4.1.2",
-    "eslint": "^10.1.0",
-    "husky": "^9.1.7",
-    "lint-staged": "^16.2.7",
-    "prettier": "^3.8.1",
-    "shx": "^0.4.0",
-    "typescript-eslint": "^8.58.0",
-    "vitest": "^4.1.2"
+    "@eslint/js": "10.0.1",
+    "@openfeature/ofrep-core": "2.3.0",
+    "@openfeature/ofrep-provider": "0.2.5",
+    "@openfeature/server-sdk": "1.23.0",
+    "@types/node": "24.12.0",
+    "@vitest/coverage-v8": "4.1.11",
+    "eslint": "10.10.0",
+    "husky": "9.1.7",
+    "lint-staged": "16.4.0",
+    "prettier": "3.8.1",
+    "shx": "0.4.0",
+    "typescript-eslint": "8.58.0",
+    "vitest": "4.1.11"
   },
   "optionalDependencies": {
     "@rollup/rollup-linux-x64-gnu": "^4.56.0"
