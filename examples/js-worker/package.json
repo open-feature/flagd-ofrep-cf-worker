@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "@openfeature/flagd-ofrep-cf-worker": "*",
-    "hono": "^4.12.32"
+    "hono": "^4.13.8"
   },
   "devDependencies": {
     "@cloudflare/vitest-pool-workers": "^0.18.8",
