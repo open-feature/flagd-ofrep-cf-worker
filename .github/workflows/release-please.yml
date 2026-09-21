@@ -56,7 +56,7 @@ jobs:
         run: npm sbom --sbom-format=cyclonedx --omit=dev --omit=peer --workspace=packages/js-ofrep-worker > sbom.json
 
       - name: Attest SBOM
-        uses: actions/attest-sbom@v3
+        uses: actions/attest-sbom@c604332985a26aa8cf1bdc465b92731239ec6b9e # v4.1.0
         with:
           subject-path: packages/js-ofrep-worker/package.json
           sbom-path: ./sbom.json
