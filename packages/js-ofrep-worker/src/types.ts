@@ -87,12 +87,7 @@ export type OfrepReason = 'STATIC' | 'TARGETING_MATCH' | 'SPLIT' | 'DISABLED' | 
  * OFREP error codes (aligned with OpenFeature error codes)
  */
 export type OfrepErrorCode =
-  | 'FLAG_NOT_FOUND'
-  | 'PARSE_ERROR'
-  | 'TARGETING_KEY_MISSING'
-  | 'INVALID_CONTEXT'
-  | 'GENERAL'
-  | 'TYPE_MISMATCH';
+  'FLAG_NOT_FOUND' | 'PARSE_ERROR' | 'TARGETING_KEY_MISSING' | 'INVALID_CONTEXT' | 'GENERAL' | 'TYPE_MISMATCH';
 
 /**
  * Configuration options for the OFREP handler
