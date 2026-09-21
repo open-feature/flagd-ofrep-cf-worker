@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.0.6](https://github.com/open-feature/flagd-ofrep-cf-worker/compare/flagd-ofrep-cf-worker-v0.0.5...flagd-ofrep-cf-worker-v0.0.6) (2026-09-21)
+
+
+### 🧹 Chore
+
+* **deps:** lock file maintenance ([#58](https://github.com/open-feature/flagd-ofrep-cf-worker/issues/58)) ([53202e6](https://github.com/open-feature/flagd-ofrep-cf-worker/commit/53202e66eeed8f7e6b35d751f6a3d159bb216bf2))
+* **deps:** update dependency @openfeature/flagd-core to v4 ([#35](https://github.com/open-feature/flagd-ofrep-cf-worker/issues/35)) ([001e280](https://github.com/open-feature/flagd-ofrep-cf-worker/commit/001e2804369a0fbe093f6d5cdd4fd8cfb2ddc5ac))
+* resolve open dependabot security alerts ([#41](https://github.com/open-feature/flagd-ofrep-cf-worker/issues/41)) ([dfb12ce](https://github.com/open-feature/flagd-ofrep-cf-worker/commit/dfb12ce2597761790939226534792095dec2dc69))
+
 ## [0.0.5](https://github.com/open-feature/flagd-ofrep-cf-worker/compare/flagd-ofrep-cf-worker-v0.0.4...flagd-ofrep-cf-worker-v0.0.5) (2026-07-14)
 
 
