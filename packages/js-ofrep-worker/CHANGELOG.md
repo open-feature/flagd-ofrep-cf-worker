@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.0.7](https://github.com/open-feature/flagd-ofrep-cf-worker/compare/flagd-ofrep-cf-worker-v0.0.6...flagd-ofrep-cf-worker-v0.0.7) (2026-09-22)
+
+
+### 🧹 Chore
+
+* **deps:** pin dependencies ([#59](https://github.com/open-feature/flagd-ofrep-cf-worker/issues/59)) ([360b1a1](https://github.com/open-feature/flagd-ofrep-cf-worker/commit/360b1a1d162ee616ddaac527594c9aebfca8b67e))
+
 ## [0.0.6](https://github.com/open-feature/flagd-ofrep-cf-worker/compare/flagd-ofrep-cf-worker-v0.0.5...flagd-ofrep-cf-worker-v0.0.6) (2026-09-21)
 
 
