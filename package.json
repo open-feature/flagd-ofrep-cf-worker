@@ -41,7 +41,7 @@
     "@openfeature/ofrep-core": "2.3.0",
     "@openfeature/ofrep-provider": "0.2.5",
     "@openfeature/server-sdk": "1.23.0",
-    "@types/node": "24.13.5",
+    "@types/node": "24.13.6",
     "@vitest/coverage-v8": "4.1.11",
     "eslint": "10.10.0",
     "husky": "9.1.7",
