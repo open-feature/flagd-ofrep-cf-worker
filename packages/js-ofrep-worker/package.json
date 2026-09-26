@@ -47,7 +47,7 @@
     "@openfeature/flagd-core": "^4.0.0"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "5.20260922.1",
+    "@cloudflare/workers-types": "5.20260923.1",
     "tsup": "8.5.1",
     "typescript": "5.9.3"
   },
