@@ -93,7 +93,7 @@ export class OfrepHandler {
   private readonly cors: boolean;
   private readonly corsOrigin: string;
   private readonly eventStreams?: EventStream[];
-  private readonly omitFlagSetMetadataFromBulkFlags: boolean;
+  private readonly omitBulkFlagSetMetadata: boolean;
 
   constructor(options: OfrepHandlerOptions) {
     this.store = new FlagStore(options.staticFlags);
@@ -101,7 +101,7 @@ export class OfrepHandler {
     this.cors = options.cors ?? false;
     this.corsOrigin = options.corsOrigin || '*';
     this.eventStreams = options.eventStreams;
-    this.omitFlagSetMetadataFromBulkFlags = options.omitFlagSetMetadataFromBulkFlags ?? false;
+    this.omitBulkFlagSetMetadata = options.omitBulkFlagSetMetadata ?? false;
   }
 
   /**
@@ -242,7 +242,7 @@ export class OfrepHandler {
     const context = toEvaluationContext(body.context);
     const evaluations = this.store.resolveAll(context);
     const toFlagMetadata = (flagMetadata?: FlagMetadata) =>
-      (this.omitFlagSetMetadataFromBulkFlags ? this.store.omitFlagSetMetadata(flagMetadata) : flagMetadata) as
+      (this.omitBulkFlagSetMetadata ? this.store.omitFlagSetMetadata(flagMetadata) : flagMetadata) as
         Record<string, JsonValue> | undefined;
 
     const flags: Array<OfrepEvaluationSuccess | OfrepEvaluationFailure> = evaluations.map((evaluation) => {

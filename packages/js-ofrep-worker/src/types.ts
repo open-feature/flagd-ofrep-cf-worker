@@ -150,7 +150,7 @@ export interface OfrepHandlerOptions {
    * clients that diff evaluations. Single flag evaluations always include the merged metadata.
    * @default false
    */
-  omitFlagSetMetadataFromBulkFlags?: boolean;
+  omitBulkFlagSetMetadata?: boolean;
 }
 
 /**

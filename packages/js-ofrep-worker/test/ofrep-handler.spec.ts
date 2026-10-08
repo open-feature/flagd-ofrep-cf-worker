@@ -283,7 +283,7 @@ describe('OfrepHandler', () => {
     });
   });
 
-  describe('omitFlagSetMetadataFromBulkFlags', () => {
+  describe('omitBulkFlagSetMetadata', () => {
     it('should merge flag set metadata into each bulk flag by default', async () => {
       const response = await handler.handleRequest(postJson('/ofrep/v1/evaluate/flags', {}));
       const body = await response.json();
@@ -293,7 +293,7 @@ describe('OfrepHandler', () => {
     });
 
     it('should only return flag set metadata at the top level of the bulk response when enabled', async () => {
-      handler = new OfrepHandler({ staticFlags: testFlags, omitFlagSetMetadataFromBulkFlags: true });
+      handler = new OfrepHandler({ staticFlags: testFlags, omitBulkFlagSetMetadata: true });
       const response = await handler.handleRequest(postJson('/ofrep/v1/evaluate/flags', {}));
       const body = await response.json();
 
@@ -319,7 +319,7 @@ describe('OfrepHandler', () => {
             },
           },
         },
-        omitFlagSetMetadataFromBulkFlags: true,
+        omitBulkFlagSetMetadata: true,
       });
       const response = await handler.handleRequest(postJson('/ofrep/v1/evaluate/flags', {}));
       const body = await response.json();
@@ -328,7 +328,7 @@ describe('OfrepHandler', () => {
     });
 
     it('should still merge flag set metadata into single flag evaluations when enabled', async () => {
-      handler = new OfrepHandler({ staticFlags: testFlags, omitFlagSetMetadataFromBulkFlags: true });
+      handler = new OfrepHandler({ staticFlags: testFlags, omitBulkFlagSetMetadata: true });
       const response = await handler.handleRequest(postJson('/ofrep/v1/evaluate/flags/targeted-string', {}));
       const body = await response.json();
 
