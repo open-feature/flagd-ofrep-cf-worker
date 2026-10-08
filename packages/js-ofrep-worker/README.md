@@ -44,6 +44,7 @@ Supported options:
 - `basePath`: override the default `/ofrep/v1`
 - `cors`: enable or disable CORS headers; defaults to `false`
 - `corsOrigin`: override the default `*` origin
+- `omitFlagSetMetadataFromBulkFlags`: return flag set metadata only at the top level of bulk responses instead of merged into every flag; defaults to `false`
 
 To expose the handler to browser-based clients, enable CORS explicitly:
 
