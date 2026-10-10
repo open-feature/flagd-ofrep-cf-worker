@@ -141,6 +141,16 @@ export interface OfrepHandlerOptions {
    *   ]
    */
   eventStreams?: EventStream[];
+
+  /**
+   * Return flag set metadata only at the top level of the bulk evaluation response,
+   * instead of merged into every flag's metadata.
+   * flagd merges flag set metadata into each flag, so a flag set value that changes on every
+   * publish (e.g. a config version) makes every flag in the bulk response look changed to
+   * clients that diff evaluations. Single flag evaluations always include the merged metadata.
+   * @default false
+   */
+  omitBulkFlagSetMetadata?: boolean;
 }
 
 /**

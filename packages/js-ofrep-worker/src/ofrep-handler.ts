@@ -1,5 +1,5 @@
 import { ErrorCode, StandardResolutionReasons } from '@openfeature/core';
-import type { JsonValue } from '@openfeature/core';
+import type { FlagMetadata, JsonValue } from '@openfeature/core';
 import { FlagStore } from './flag-store';
 import {
   toEvaluationContext,
@@ -93,6 +93,7 @@ export class OfrepHandler {
   private readonly cors: boolean;
   private readonly corsOrigin: string;
   private readonly eventStreams?: EventStream[];
+  private readonly omitBulkFlagSetMetadata: boolean;
 
   constructor(options: OfrepHandlerOptions) {
     this.store = new FlagStore(options.staticFlags);
@@ -100,6 +101,7 @@ export class OfrepHandler {
     this.cors = options.cors ?? false;
     this.corsOrigin = options.corsOrigin || '*';
     this.eventStreams = options.eventStreams;
+    this.omitBulkFlagSetMetadata = options.omitBulkFlagSetMetadata ?? false;
   }
 
   /**
@@ -239,6 +241,9 @@ export class OfrepHandler {
 
     const context = toEvaluationContext(body.context);
     const evaluations = this.store.resolveAll(context);
+    const toFlagMetadata = (flagMetadata?: FlagMetadata) =>
+      (this.omitBulkFlagSetMetadata ? this.store.omitFlagSetMetadata(flagMetadata) : flagMetadata) as
+        Record<string, JsonValue> | undefined;
 
     const flags: Array<OfrepEvaluationSuccess | OfrepEvaluationFailure> = evaluations.map((evaluation) => {
       if (evaluation.errorCode) {
@@ -246,7 +251,7 @@ export class OfrepHandler {
           key: evaluation.flagKey,
           errorCode: toOfrepErrorCode(evaluation.errorCode),
           errorDetails: evaluation.errorMessage,
-          metadata: evaluation.flagMetadata as Record<string, JsonValue> | undefined,
+          metadata: toFlagMetadata(evaluation.flagMetadata),
         } as OfrepEvaluationFailure;
       }
 
@@ -255,7 +260,7 @@ export class OfrepHandler {
         value: evaluation.value,
         reason: toOfrepReason(evaluation.reason),
         variant: evaluation.variant,
-        metadata: evaluation.flagMetadata as Record<string, JsonValue> | undefined,
+        metadata: toFlagMetadata(evaluation.flagMetadata),
       } as OfrepEvaluationSuccess;
     });
 
