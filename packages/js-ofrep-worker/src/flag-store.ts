@@ -95,6 +95,21 @@ export class FlagStore {
     return Array.from(this.core.getFlags().keys());
   }
 
+  /**
+   * Remove flag set metadata entries from a flag's metadata.
+   * flagd-core merges flag set metadata into every flag, so entries are matched by key and value;
+   * a flag that explicitly sets the same value as the flag set will have that entry removed too.
+   * Returns undefined when no flag-specific metadata remains.
+   */
+  omitFlagSetMetadata(flagMetadata?: FlagMetadata): FlagMetadata | undefined {
+    if (!flagMetadata) {
+      return undefined;
+    }
+
+    const entries = Object.entries(flagMetadata).filter(([key, value]) => this.flagSetMetadata[key] !== value);
+    return entries.length > 0 ? Object.fromEntries(entries) : undefined;
+  }
+
   private mergeFlagMetadata(flagMetadata?: FlagMetadata): FlagMetadata {
     return {
       ...this.flagSetMetadata,
