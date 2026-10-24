@@ -283,6 +283,59 @@ describe('OfrepHandler', () => {
     });
   });
 
+  describe('omitBulkFlagSetMetadata', () => {
+    it('should merge flag set metadata into each bulk flag by default', async () => {
+      const response = await handler.handleRequest(postJson('/ofrep/v1/evaluate/flags', {}));
+      const body = await response.json();
+
+      const targeted = body.flags.find((f: { key: string }) => f.key === 'targeted-string');
+      expect(targeted.metadata).toEqual({ flagSetId: 'test-flags', version: '1.0.0', owner: 'platform-team' });
+    });
+
+    it('should only return flag set metadata at the top level of the bulk response when enabled', async () => {
+      handler = new OfrepHandler({ staticFlags: testFlags, omitBulkFlagSetMetadata: true });
+      const response = await handler.handleRequest(postJson('/ofrep/v1/evaluate/flags', {}));
+      const body = await response.json();
+
+      expect(body.metadata).toEqual({ flagSetId: 'test-flags', version: '1.0.0' });
+
+      const targeted = body.flags.find((f: { key: string }) => f.key === 'targeted-string');
+      expect(targeted.metadata).toEqual({ owner: 'platform-team' });
+
+      const disabled = body.flags.find((f: { key: string }) => f.key === 'disabled-flag');
+      expect(disabled).toEqual({ key: 'disabled-flag', reason: 'DISABLED' });
+    });
+
+    it('should keep flag metadata that overrides a flag set value', async () => {
+      handler = new OfrepHandler({
+        staticFlags: {
+          metadata: { version: '1' },
+          flags: {
+            'override-flag': {
+              state: 'ENABLED',
+              defaultVariant: 'on',
+              variants: { on: true, off: false },
+              metadata: { version: '2' },
+            },
+          },
+        },
+        omitBulkFlagSetMetadata: true,
+      });
+      const response = await handler.handleRequest(postJson('/ofrep/v1/evaluate/flags', {}));
+      const body = await response.json();
+
+      expect(body.flags[0].metadata).toEqual({ version: '2' });
+    });
+
+    it('should still merge flag set metadata into single flag evaluations when enabled', async () => {
+      handler = new OfrepHandler({ staticFlags: testFlags, omitBulkFlagSetMetadata: true });
+      const response = await handler.handleRequest(postJson('/ofrep/v1/evaluate/flags/targeted-string', {}));
+      const body = await response.json();
+
+      expect(body.metadata).toEqual({ flagSetId: 'test-flags', version: '1.0.0', owner: 'platform-team' });
+    });
+  });
+
   describe('event streams (ADR-0008)', () => {
     it('should omit eventStreams from the bulk response when not configured', async () => {
       const request = postJson('/ofrep/v1/evaluate/flags', {});
