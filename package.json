@@ -37,27 +37,27 @@
     "url": "git+https://github.com/open-feature/flagd-ofrep-cf-worker.git"
   },
   "devDependencies": {
-    "@eslint/js": "^10.0.1",
-    "@openfeature/ofrep-core": "^2.0.0",
-    "@openfeature/ofrep-provider": "^0.2.4",
-    "@openfeature/server-sdk": "^1.23.0",
-    "@types/node": "^24.12.0",
-    "@vitest/coverage-v8": "^4.1.2",
-    "eslint": "^10.1.0",
-    "husky": "^9.1.7",
-    "lint-staged": "^16.2.7",
-    "prettier": "^3.8.1",
-    "shx": "^0.4.0",
-    "typescript-eslint": "^8.58.0",
-    "vitest": "^4.1.2"
+    "@eslint/js": "10.0.1",
+    "@openfeature/ofrep-core": "2.3.0",
+    "@openfeature/ofrep-provider": "0.2.5",
+    "@openfeature/server-sdk": "1.23.0",
+    "@types/node": "24.19.2",
+    "@vitest/coverage-v8": "4.1.12",
+    "eslint": "10.13.0",
+    "husky": "9.1.7",
+    "lint-staged": "17.6.0",
+    "prettier": "3.9.10",
+    "shx": "0.4.0",
+    "typescript-eslint": "8.72.0",
+    "vitest": "4.1.12"
   },
   "optionalDependencies": {
     "@rollup/rollup-linux-x64-gnu": "^4.56.0"
   },
   "overrides": {
     "miniflare": {
-      "undici": "7.29.0",
-      "sharp": "0.35.4"
+      "undici": "7.29.1",
+      "sharp": "0.35.5"
     },
     "esbuild": "^0.28.1"
   }
