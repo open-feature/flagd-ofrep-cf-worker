@@ -1,6 +1,6 @@
 {
   "name": "@openfeature/flagd-ofrep-cf-worker",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "flagd OFREP handler for Cloudflare Workers - in-process flag evaluation using the flagd evaluation engine",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
@@ -44,11 +44,11 @@
   },
   "dependencies": {
     "@openfeature/core": "^1.9.1",
-    "@openfeature/flagd-core": "^4.0.0"
+    "@openfeature/flagd-core": "^5.0.0"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "5.20261023.1",
-    "tsup": "8.5.1",
+    "@cloudflare/workers-types": "5.20261030.1",
+    "tsup": "9.0.0",
     "typescript": "5.9.3"
   },
   "peerDependencies": {

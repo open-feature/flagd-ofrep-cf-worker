@@ -19,9 +19,9 @@
     "hono": "^4.13.8"
   },
   "devDependencies": {
-    "@cloudflare/vitest-pool-workers": "^0.18.8",
+    "@cloudflare/vitest-plugin": "^1.4.9",
     "@cloudflare/workers-types": "^5.20260722.1",
     "typescript": "^5.7.0",
-    "wrangler": "^4.114.0"
+    "wrangler": "^4.154.0"
   }
 }
