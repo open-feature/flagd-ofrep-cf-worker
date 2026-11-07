@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.0.9](https://github.com/open-feature/flagd-ofrep-cf-worker/compare/flagd-ofrep-cf-worker-v0.0.8...flagd-ofrep-cf-worker-v0.0.9) (2026-11-07)
+
+
+### 🧹 Chore
+
+* **deps:** update dependency @cloudflare/workers-types to v5.20261026.1 ([#126](https://github.com/open-feature/flagd-ofrep-cf-worker/issues/126)) ([41c3d9d](https://github.com/open-feature/flagd-ofrep-cf-worker/commit/41c3d9d452bbd0e34198fef960908adb8e0f0ff8))
+* **deps:** update dependency @cloudflare/workers-types to v5.20261027.1 ([#129](https://github.com/open-feature/flagd-ofrep-cf-worker/issues/129)) ([7260a62](https://github.com/open-feature/flagd-ofrep-cf-worker/commit/7260a62ffc34a2c861e7b663a443bdb89b39bcef))
+* **deps:** update dependency @cloudflare/workers-types to v5.20261028.1 ([#130](https://github.com/open-feature/flagd-ofrep-cf-worker/issues/130)) ([e8d85f7](https://github.com/open-feature/flagd-ofrep-cf-worker/commit/e8d85f7e824559e5d82b64ff2504e8200e68f278))
+* **deps:** update dependency @cloudflare/workers-types to v5.20261029.1 ([#131](https://github.com/open-feature/flagd-ofrep-cf-worker/issues/131)) ([e574770](https://github.com/open-feature/flagd-ofrep-cf-worker/commit/e574770f8fe4c180b3d6dbeb8f3e8c2c2d19ae89))
+* **deps:** update dependency @cloudflare/workers-types to v5.20261030.1 ([#132](https://github.com/open-feature/flagd-ofrep-cf-worker/issues/132)) ([205ee3c](https://github.com/open-feature/flagd-ofrep-cf-worker/commit/205ee3c9c991e8570ac2cc36bd8103767652b787))
+* **deps:** update dependency @cloudflare/workers-types to v5.20261031.1 ([#135](https://github.com/open-feature/flagd-ofrep-cf-worker/issues/135)) ([591a353](https://github.com/open-feature/flagd-ofrep-cf-worker/commit/591a353e283260ef85b86e5da12ce52ec92f2e1c))
+* **deps:** update dependency @cloudflare/workers-types to v5.20261101.1 ([#136](https://github.com/open-feature/flagd-ofrep-cf-worker/issues/136)) ([069da8a](https://github.com/open-feature/flagd-ofrep-cf-worker/commit/069da8a659ea11c99a4a5f2c3b6eaeae29c75bfe))
+* **deps:** update dependency @cloudflare/workers-types to v5.20261102.1 ([#137](https://github.com/open-feature/flagd-ofrep-cf-worker/issues/137)) ([3459601](https://github.com/open-feature/flagd-ofrep-cf-worker/commit/3459601eb7991d37deaeabe940e4f40a3bad5f78))
+* **deps:** update dependency @cloudflare/workers-types to v5.20261103.1 ([#138](https://github.com/open-feature/flagd-ofrep-cf-worker/issues/138)) ([92e8fa0](https://github.com/open-feature/flagd-ofrep-cf-worker/commit/92e8fa0a69871a7749601231d1039c5d5866b7f9))
+* **deps:** update dependency @cloudflare/workers-types to v5.20261104.1 ([#139](https://github.com/open-feature/flagd-ofrep-cf-worker/issues/139)) ([94a29f8](https://github.com/open-feature/flagd-ofrep-cf-worker/commit/94a29f881ce118d01b8710cc8c68a07f0a263d43))
+
 ## [0.0.8](https://github.com/open-feature/flagd-ofrep-cf-worker/compare/flagd-ofrep-cf-worker-v0.0.7...flagd-ofrep-cf-worker-v0.0.8) (2026-10-28)
 
 
